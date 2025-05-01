@@ -48,12 +48,19 @@ message GradeRequest {
 
 // Response messages
 message SiteInfoResponse {
+  string sitename = 1;
+  string siteurl = 2;
+  repeated Function functions = 3;
+  int32 userid = 4;
+
+}
+
+message Function {
   string name = 1;
   string version = 2;
-  string release = 3;
-  string moodleRelease = 4;
-  string supportLink = 5;
 }
+  
+
 
 message UserResponse {
   int32 id = 1;

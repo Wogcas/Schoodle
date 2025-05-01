@@ -1,1 +1,1 @@
-export const API_MOODLE = process.env.ApiRestMoodleUrl;
+export const API_MOODLE = String( process.env.ApiRestMoodleUrl);

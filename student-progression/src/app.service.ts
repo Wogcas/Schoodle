@@ -1,14 +1,20 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { API_MOODLE } from './config/enviroment.config';
 import { plainToClass } from 'class-transformer';
 import { SiteInfoDTO } from './dtos/site-info.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AppService {
 
-  constructor(private readonly httpService: HttpService) {}
+  //private readonly logger = new Logger(AppService.name);
+
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+  ) {}
 
   getHello(): string {
     return 'Hello World!';
@@ -16,10 +22,12 @@ export class AppService {
 
   async fetchMoodleSiteInfo(): Promise<SiteInfoDTO> {
     try {
+      const apiUrlMoodle = this.configService.get<string>('ApiRestMoodleUrl');
+      const url =  `${apiUrlMoodle}/site-info`;
       const response = await firstValueFrom(
-        this.httpService.get(`${API_MOODLE}/site-info`),
+        this.httpService.get(url),
       );
-      console.log("AAAAA",response.data);
+      //this.logger.debug(`Response API Moodle: ${JSON.stringify(response.data)}`);
       return plainToClass(SiteInfoDTO, response.data);
     } catch (error) {
       throw new Error('No se pudo obtener la informacion del sitio de Moodle');
