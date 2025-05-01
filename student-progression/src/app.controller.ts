@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { GrpcMethod } from '@nestjs/microservices';
+import { SiteInfoDTO } from './dtos/site-info.dto';
 
 @Controller()
 export class AppController {
@@ -12,9 +13,13 @@ export class AppController {
   }
 
   @GrpcMethod('MoodleInfoService', 'GetSiteInfo')
-  getMoodleInfo(data) {
-    console.log('Received data:', data);
-    return data;
+  async getMoodleInfo(): Promise<SiteInfoDTO> {
+    try {
+      return await this.appService.fetchMoodleSiteInfo();
+    } catch (error) {
+      console.error('Error fetching Moodle site info:', error);
+      throw new Error('Failed to fetch Moodle site info');
+    }
   }
   
 }
