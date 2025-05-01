@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package moodle;
+import "google/protobuf/timestamp.proto";
+
+service MoodleInfoService {
+
+  // Get site information
+  rpc GetSiteInfo(SiteInfoRequest) returns (SiteInfoResponse) {}
+  
+  // Get user information
+  rpc GetUser(UserRequest) returns (UserResponse) {}
+
+  // Get course information
+  rpc GetCourse(CourseRequest) returns (CourseResponse) {}
+  rpc GetListOfCourses(UserRequest) returns (CourseResponse) {}
+
+  // Get assignment information
+  rpc GetAssignment(AssignmentRequest) returns (AssignmentResponse) {}
+  rpc GetListOfAssignments(CourseRequest) returns (AssignmentResponse) {}
+
+  // Get grade information
+  rpc GetGrade(GradeRequest) returns (GradeResponse) {}
+  rpc GetListOfGrades(UserRequest) returns (GradeResponse) {}
+
+}
+
+// Request messages
+message SiteInfoRequest {
+    // Not needed
+}
+
+message UserRequest {
+    int32 id = 1; 
+}
+
+message CourseRequest {
+    int32 id = 1; 
+}
+
+message AssignmentRequest {
+    int32 id = 1;
+}
+
+message GradeRequest {
+    int32 id = 1;
+}
+
+// Response messages
+message SiteInfoResponse {
+  string name = 1;
+  string version = 2;
+  string release = 3;
+  string moodleRelease = 4;
+  string supportLink = 5;
+}
+
+message UserResponse {
+  int32 id = 1;
+  string username = 2;
+  string email = 3;
+}
+
+message CourseResponse {
+  int32 id = 1;
+  string shortname = 2;
+  string fullname = 3;
+  google.protobuf.Timestamp startdate = 4;
+  google.protobuf.Timestamp enddate = 5;
+}
+
+message AssignmentResponse {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+  google.protobuf.Timestamp duedate = 4;
+}
+
+message GradeResponse {
+  int32 id = 1;
+  int32 userid = 2;
+  int32 assignmentId = 3;
+  float grade = 4;
+}
