@@ -1,1 +1,1 @@
-export const API_MOODLE = String( process.env.ApiRestMoodleUrl);
+export const API_MOODLE = process.env.API_MOODLE_URL || 'http://localhost:8080/api/moodle/rest';

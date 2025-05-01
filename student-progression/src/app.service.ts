@@ -11,10 +11,7 @@ export class AppService {
 
   //private readonly logger = new Logger(AppService.name);
 
-  constructor(
-    private readonly httpService: HttpService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly httpService: HttpService) {}
 
   getHello(): string {
     return 'Hello World!';
@@ -22,8 +19,7 @@ export class AppService {
 
   async fetchMoodleSiteInfo(): Promise<SiteInfoDTO> {
     try {
-      const apiUrlMoodle = this.configService.get<string>('ApiRestMoodleUrl');
-      const url =  `${apiUrlMoodle}/site-info`;
+      const url =  `${API_MOODLE}/site-info`;
       const response = await firstValueFrom(
         this.httpService.get(url),
       );
