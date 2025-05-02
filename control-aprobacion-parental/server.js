@@ -3,7 +3,6 @@ import { HTTP_PORT, GRPC_PORT } from './utils/config';
 import grpc from '@grpc/grpc-js';
 import protoLoader from '@grpc/proto-loader';
 import parentalApprovalManagementRouter from './routers/parentalApprovalManagementRouter';
-import parentalApprovalManagementGrpcService from './services/parentalApprovalManagementGrpcService';
 
 
 const app = express();
@@ -21,7 +20,7 @@ app.listen(HTTP_PORT, () => {
 
 // 1. Load the service definition from the .proto file
 const packageDefinition = protoLoader.loadSync(
-    __dirname + '../../gestor-tarea-aprobacion-parental.proto',
+    __dirname + './tasks-parental-approval-management.proto',
     {
         keepCase: true,
         longs: String,
@@ -31,13 +30,19 @@ const packageDefinition = protoLoader.loadSync(
     });
 const parentalApprovalManagementProto = grpc.loadPackageDefinition(packageDefinition).parentalapprovalmanagement;
 
+// Instantiate the concrete data source implementation
+const taskDataSource = new ExternalTaskDataSource();
+
+// Instantiate the gRPC service implementation, injecting the data source
+const parentalApprovalManagementGrpcServiceImpl = new ParentalApprovalManagementGrpcService(taskDataSource);
+
 // 2. gRPC server instance
 const grpcServer = new grpc.Server();
 
 // 3. Add the gRPC service and its implementation
 grpcServer.addService(
     parentalApprovalManagementProto.ParentalApprovalManagementGrpcService.service,
-    parentalApprovalManagementGrpcService
+    parentalApprovalManagementGrpcServiceImpl
 );
 
 // 4. Bind the gRPC server to the address and port
