@@ -1,9 +1,15 @@
 import express from 'express';
-import { HTTP_PORT, GRPC_PORT } from './utils/config';
+import { HTTP_PORT, GRPC_PORT } from './utils/config.js';
 import grpc from '@grpc/grpc-js';
 import protoLoader from '@grpc/proto-loader';
-import parentalApprovalManagementRouter from './routers/parentalApprovalManagementRouter';
+import parentalApprovalManagementRouter from './routers/parentalApprovalManagementRouter.js';
+import path from 'path';
+import { fileURLToPath } from 'url'; // Importa 'fileURLToPath'
+import TaskDataSource from './services/taskDataSource.js';
+import ParentalApprovalManagementGrpcService from './services/parentalApprovalManagementGrpcService.js';
 
+const __filename = fileURLToPath(import.meta.url); // Obtén la ruta del archivo actual
+const __dirname = path.dirname(__filename); 
 
 const app = express();
 app.use(express.json());
@@ -20,7 +26,7 @@ app.listen(HTTP_PORT, () => {
 
 // 1. Load the service definition from the .proto file
 const packageDefinition = protoLoader.loadSync(
-    __dirname + './tasks-parental-approval-management.proto',
+    path.join(__dirname + '/protos/tasks-parental-approval-management.proto'),
     {
         keepCase: true,
         longs: String,
@@ -31,10 +37,10 @@ const packageDefinition = protoLoader.loadSync(
 const parentalApprovalManagementProto = grpc.loadPackageDefinition(packageDefinition).parentalapprovalmanagement;
 
 // Instantiate the concrete data source implementation
-const taskDataSource = new ExternalTaskDataSource();
+const taskDataSource = new TaskDataSource();
 
 // Instantiate the gRPC service implementation, injecting the data source
-const parentalApprovalManagementGrpcServiceImpl = new ParentalApprovalManagementGrpcService(taskDataSource);
+const parentalApprovalManagementGrpcServiceImpl = new ParentalApprovalManagementGrpcService(taskDataSource)
 
 // 2. gRPC server instance
 const grpcServer = new grpc.Server();
@@ -47,7 +53,7 @@ grpcServer.addService(
 
 // 4. Bind the gRPC server to the address and port
 grpcServer.bindAsync(
-    `0.0.0.0:${GRPC_PORT}`,
+    `localhost:${GRPC_PORT}`,
     grpc.ServerCredentials.createInsecure(),
     (err, port) => {
         if (err) {

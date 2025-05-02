@@ -1,7 +1,11 @@
 
 class TaskDataSource {
     async getPendingTasks(parentId) {
-        throw new Error('Method getPendingTasks must be implemented.');
+        console.log(`Simulando tareas pendientes para el padre con ID: ${parentId}`);
+        return [
+            { id: 'fakeTask1', title: 'Tarea de matemáticas simulada', studentName: 'Estudiante A' },
+            { id: 'fakeTask2', title: 'Leer un capítulo simulado', studentName: 'Estudiante A' },
+        ];
     }
 
     async getTaskDetails(taskId) {
@@ -13,4 +17,4 @@ class TaskDataSource {
     }
 }
 
-module.exports = TaskDataSource;
+export default TaskDataSource;

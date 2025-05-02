@@ -1,6 +1,6 @@
 
-const grpc = require('@grpc/grpc-js');
-const TaskDataSource = require('./taskDataSource');
+import grpc from '@grpc/grpc-js';
+import TaskDataSource from './taskDataSource.js';
 
 class ParentalApprovalManagementGrpcService {
     constructor(taskDataSource) {
@@ -68,4 +68,4 @@ class ParentalApprovalManagementGrpcService {
     }
 }
 
-module.exports = ParentalApprovalManagementGrpcService;
+export default ParentalApprovalManagementGrpcService;

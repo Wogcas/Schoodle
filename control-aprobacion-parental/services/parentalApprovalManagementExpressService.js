@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-const TaskDataSource = require('./taskDataSource');
+import TaskDataSource from './taskDataSource.js';
 
 const MOODLE_API = '#';
 
@@ -36,4 +36,4 @@ class ExternalTaskDataSource extends TaskDataSource {
     }
 }
 
-module.exports = ExternalTaskDataSource;
+export default ExternalTaskDataSource;
