@@ -3,11 +3,23 @@ import grpc from '@grpc/grpc-js';
 import TaskDataSource from './taskDataSource.js';
 
 class ParentalApprovalManagementGrpcService {
+
+    
     constructor(taskDataSource) {
         if (!(taskDataSource instanceof TaskDataSource)) {
             throw new Error('taskDataSource must be an instance of TaskDataSource.');
         }
         this.taskDataSource = taskDataSource;
+    }
+
+    async GetSiteInfo(call, callback) {
+        try {
+            const siteInfo = await this.taskDataSource.getSiteInfo(); // Llama al servicio
+            callback(null, siteInfo); // Pasa los datos al callback
+        } catch (error) {
+            console.error('Error getting site info:', error);
+            callback({ code: grpc.status.INTERNAL, details: 'Failed to retrieve site info.' });
+        }
     }
 
     async GetPendingTasksToApprove(call, callback) {

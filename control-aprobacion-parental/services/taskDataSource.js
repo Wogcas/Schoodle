@@ -1,5 +1,10 @@
 
 class TaskDataSource {
+
+    async getSiteInfo() {
+        return {}
+    }
+
     async getPendingTasks(parentId) {
         console.log(`Simulando tareas pendientes para el padre con ID: ${parentId}`);
         return [

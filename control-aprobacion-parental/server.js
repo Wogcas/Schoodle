@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url'; // Importa 'fileURLToPath'
 import TaskDataSource from './services/taskDataSource.js';
 import ParentalApprovalManagementGrpcService from './services/parentalApprovalManagementGrpcService.js';
+import ExternalTaskDataSource from './services/parentalApprovalManagementExpressService.js';
 
 const __filename = fileURLToPath(import.meta.url); // Obtén la ruta del archivo actual
 const __dirname = path.dirname(__filename); 
@@ -37,7 +38,7 @@ const packageDefinition = protoLoader.loadSync(
 const parentalApprovalManagementProto = grpc.loadPackageDefinition(packageDefinition).parentalapprovalmanagement;
 
 // Instantiate the concrete data source implementation
-const taskDataSource = new TaskDataSource();
+const taskDataSource = new ExternalTaskDataSource();
 
 // Instantiate the gRPC service implementation, injecting the data source
 const parentalApprovalManagementGrpcServiceImpl = new ParentalApprovalManagementGrpcService(taskDataSource)

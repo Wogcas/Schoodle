@@ -4,6 +4,7 @@ package parentalapprovalmanagement;
 import "google/protobuf/timestamp.proto";
 
 service ParentalApprovalManagementGrpcService {
+  rpc GetSiteInfo(SiteInfoRequest) returns (SiteInfoResponse) {}
   rpc GetPendingTasksToApprove(GetPendingTasksToApproveRequest) returns (GetPendingTasksToApproveResponse) {}
   rpc GetSelectedTask(GetSelectedTaskRequest) returns (GetSelectedTaskResponse) {}
   rpc ApproveTask(ApproveTaskRequest) returns (ApproveTaskResponse) {}
@@ -38,6 +39,23 @@ message ApproveTaskRequest {
 message ApproveTaskResponse {
   bool success = 1;
   string message = 2; // Optional: success or error message
+}
+
+message SiteInfoRequest {
+    // Not needed
+}
+
+message SiteInfoResponse {
+  string sitename = 1;
+  string siteurl = 2;
+  repeated Function functions = 3;
+  int32 userid = 4;
+
+}
+
+message Function {
+  string name = 1;
+  string version = 2;
 }
 
 message Task {
