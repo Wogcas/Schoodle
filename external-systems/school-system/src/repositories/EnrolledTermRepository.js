@@ -1,4 +1,4 @@
-const knex = require('../database');
+const knex = require('../database/knex');
 
 class EnrolledTermRepository {
     async findById(id, trx = knex) {
@@ -27,6 +27,8 @@ class EnrolledTermRepository {
         return await trx('EnrolledTerms')
             .where({ studentId });
     }
+
+    
 }
 
 module.exports = new EnrolledTermRepository();

@@ -1,4 +1,4 @@
-const knex = require('../database');
+const knex = require('../database/knex');
 
 const GradeRepository = {
     async processTransaction(callback) {

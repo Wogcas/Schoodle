@@ -1,4 +1,4 @@
-const knex = require('../database');
+const knex = require('../database/knex');
 
 class CourseTakenRepository {
     async findById(id, trx = knex) {

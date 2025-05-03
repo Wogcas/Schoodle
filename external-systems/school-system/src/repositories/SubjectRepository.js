@@ -1,4 +1,4 @@
-const knex = require('../database');
+const knex = require('../database/knex');
 
 class SubjectRepository {
     async findById(id, trx = knex) {
@@ -13,11 +13,27 @@ class SubjectRepository {
             .first();
     }
 
-    async create(subjectData, trx = knex) {
-        const [subject] = await trx('Subjects')
-            .insert(subjectData)
-            .returning('*');
-        return subject;
+    async createWithUnits(subjectData, units) {
+        return await knex.transaction(async trx => {
+            const [subject] = await trx('Subjects')
+                .insert(subjectData)
+                .returning('*');
+
+            for (const unit of units) {
+                await trx('Units').insert({
+                    ...unit,
+                    subjectId: subject.id
+                });
+            }
+
+            return subject;
+        });
+    }
+
+    async getWithUnits(subjectId) {
+        const subject = await knex('Subjects').where({ id: subjectId }).first();
+        const units = await knex('Units').where({ subjectId });
+        return { ...subject, units };
     }
 }
 
