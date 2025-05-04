@@ -1,2 +1,3 @@
 external-systems/school-system/.env
 .env
+/node_modules
