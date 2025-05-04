@@ -1,10 +1,10 @@
 import { View, Text, StyleSheet } from "react-native"
 
-const MessageBubble = ({ message, isUser }) => {
+const ChatMessage = ({ message, time, isUser = false }) => {
   return (
-    <View style={[styles.container, isUser ? styles.userContainer : styles.teacherContainer]}>
-      <Text style={styles.messageText}>{message.text}</Text>
-      <Text style={styles.timeText}>{message.time}</Text>
+    <View style={[styles.container, isUser ? styles.userContainer : styles.otherContainer]}>
+      <Text style={styles.message}>{message}</Text>
+      <Text style={styles.time}>{time}</Text>
     </View>
   )
 }
@@ -12,25 +12,24 @@ const MessageBubble = ({ message, isUser }) => {
 const styles = StyleSheet.create({
   container: {
     maxWidth: "80%",
-    padding: 15,
     borderRadius: 20,
+    padding: 15,
     marginVertical: 5,
+    marginHorizontal: 10,
   },
   userContainer: {
     alignSelf: "flex-end",
     backgroundColor: "#4A90E2",
-    borderBottomRightRadius: 5,
   },
-  teacherContainer: {
+  otherContainer: {
     alignSelf: "flex-start",
     backgroundColor: "#FFE57F",
-    borderBottomLeftRadius: 5,
   },
-  messageText: {
+  message: {
     fontSize: 16,
     color: "#000",
   },
-  timeText: {
+  time: {
     fontSize: 12,
     color: "#666",
     alignSelf: "flex-end",
@@ -38,4 +37,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default MessageBubble
+export default ChatMessage
