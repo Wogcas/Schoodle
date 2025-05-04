@@ -1,2 +1,5 @@
 external-systems/school-system/.env
 .env
+external-systems/school-system/node_modules
+external-systems/school-system/package-lock.json
+external-systems/school-system/package.json
