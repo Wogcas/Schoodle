@@ -1,15 +1,15 @@
-import amqlib from "amqplib";
+import amqp, { Channel, ChannelModel, Connection } from 'amqplib';
 import rabbitConfig, { ExchangeConfig, QueueConfig } from "./rabbitmq.config";
 
 class RabbitMQConnection {
-    private connection: any;
-    private channel: any;
+    private connection: ChannelModel | null = null;
+    private channel: Channel | null = null;
 
     async connect(): Promise<void> {
         try {
             const { host, port, username, password, vhost } = rabbitConfig;
             const connectionUrl = `amqp://${username}:${password}@${host}:${port}${vhost ? `/${vhost}` : ''}`;
-            this.connection = await amqlib.connect(connectionUrl);
+            this.connection = await amqp.connect(connectionUrl);
             this.channel = await this.connection.createChannel();
             console.log("Connected to RabbitMQ successfully.");
 
@@ -34,17 +34,21 @@ class RabbitMQConnection {
 
     private async setupQueues(queues: Record<string, QueueConfig>): Promise<void> {
         if (!this.channel) throw new Error('Channel is not initialized.');
-    
+
         for (const queueKey in queues) {
             const queue = queues[queueKey];
             await this.channel.assertQueue(queue.name, queue.options);
             console.log(`Queue "${queue.name}" asserted.`);
-    
-            if (rabbitConfig.exchanges.default.name) {
-                await this.channel.bindQueue(queue.name, rabbitConfig.exchanges.default.name, '#'); 
+
+            if (queueKey === 'default' && rabbitConfig.exchanges.default.name) {
+                await this.channel.bindQueue(queue.name, rabbitConfig.exchanges.default.name, '#');
                 console.log(`Queue "${queue.name}" bound to exchange "${rabbitConfig.exchanges.default.name}" with routing key "#".`);
             }
-    
+            if (queueKey === 'notifications' && rabbitConfig.exchanges.notifications.name) {
+                await this.channel.bindQueue(queue.name, rabbitConfig.exchanges.notifications.name, '#'); // Or a specific routing key
+                console.log(`Queue "${queue.name}" bound to exchange "${rabbitConfig.exchanges.notifications.name}" with routing key "#".`);
+            }
+
             if (queue.options.deadLetterExchange) {
                 await this.channel.bindQueue(queue.name, queue.options.deadLetterExchange, '');
                 console.log(`Queue "${queue.name}" bound to DLX "${queue.options.deadLetterExchange}".`);

@@ -27,48 +27,54 @@ export interface ExchangeConfig {
     };
 }
 
-// Configuración por defecto con mayor flexibilidad
 const rabbitConfig: RabbitMQConfig = {
     host: process.env.RABBITMQ_HOST || 'localhost',
     port: parseInt(process.env.RABBITMQ_PORT || '5672', 10),
-    username: process.env.RABBITMQ_USERNAME || 'guest',
-    password: process.env.RABBITMQ_PASSWORD || 'guest',
+    username: process.env.RABBITMQ_USERNAME || 'notifications',
+    password: process.env.RABBITMQ_PASSWORD || 'notifications',
     vhost: process.env.RABBITMQ_VHOST || '/',
-    
-    // Definir colas con configuraciones específicas
     queues: {
         default: {
             name: process.env.RABBITMQ_DEFAULT_QUEUE || 'default_queue',
             options: {
                 durable: true,
-                // Opcionalmente, puedes configurar cola de mensajes muertos
                 deadLetterExchange: 'dlx.default',
-                messageTtl: 86400000, // 24 horas en milisegundos
-            }
+                messageTtl: 86400000,
+            },
         },
-        // Añadir más colas según sea necesario
+        notifications: {
+            name: process.env.RABBITMQ_NOTIFICATIONS_QUEUE || 'notifications_queue',
+            options: {
+                durable: true,
+            },
+        },
     },
-    
-    // Definir intercambios con configuraciones específicas
     exchanges: {
         default: {
             name: process.env.RABBITMQ_DEFAULT_EXCHANGE || 'default_exchange',
             type: 'topic',
             options: {
                 durable: true,
-                autoDelete: false
-            }
+                autoDelete: false,
+            },
         },
         dlx: {
             name: 'dlx.default',
             type: 'direct',
             options: {
                 durable: true,
-                autoDelete: false
-            }
-        }
-        // Añadir más intercambios según sea necesario
-    }
+                autoDelete: false,
+            },
+        },
+        notifications: {
+            name: process.env.RABBITMQ_NOTIFICATIONS_EXCHANGE || 'notifications',
+            type: 'topic',
+            options: {
+                durable: true,
+                autoDelete: false,
+            },
+        },
+    },
 };
 
 export default rabbitConfig;
