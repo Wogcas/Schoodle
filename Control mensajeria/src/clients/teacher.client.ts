@@ -29,7 +29,6 @@ async function main() {
                 passcode: 'guest'
             },
             reconnectDelay: 5000,
-            debug: (str) => console.log('STOMP:', str)
         });
 
         // Conectar y suscribirse a cola

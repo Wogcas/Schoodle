@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { messageRouter } from './routes/messageRoutes';
 import { chatService } from './services/chatService';
+import { notificationService } from './services/notificationService';
 
 dotenv.config();
 
@@ -16,43 +17,50 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/messages', messageRouter);
 
-// Ruta para comprobar el estado del servidor
 app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    service: 'chat-service',
-    stompUrl: chatService.getWebStompURL()
-  });
+    res.status(200).json({
+        status: 'ok',
+        service: 'chat-service',
+        stompUrl: chatService.getWebStompURL()
+    });
 });
 
 const server = http.createServer(app);
 
-// Inicio del servidor
 async function startServer() {
-  try {
-    await chatService.initialize();
+    try {
+        await chatService.initialize();
+        console.log('Chat service initialized.');
+        await notificationService.initialize();
+        console.log('Notification service initialized.');
 
-    server.listen(PORT, () => {
-      console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
-      console.log(`Conexión WebSTOMP disponible en ${chatService.getWebStompURL()}`);
-    });
+        server.listen(PORT, () => {
+            console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
+            console.log(`Conexión WebSTOMP disponible en ${chatService.getWebStompURL()}`);
+        });
 
-    const shutdown = async () => {
-      console.log('Cerrando servidor...');
+        const shutdown = async () => {
+            console.log('Cerrando servidor...');
+            try {
+                await Promise.all([chatService.close(), notificationService.close()]);
+                console.log('Servicios RabbitMQ cerrados.');
+            } catch (error) {
+                console.error("Error al cerrar servicios RabbitMQ:", error);
+            } finally {
+                server.close(() => {
+                    console.log('Servidor HTTP cerrado');
+                    process.exit(0);
+                });
+            }
+        };
 
-      await chatService.close();
-      server.close(() => {
-        console.log('Servidor HTTP cerrado');
-        process.exit(0);
-      });
-    };
+        process.on('SIGINT', shutdown);
+        process.on('SIGTERM', shutdown);
 
-    process.on('SIGINT', shutdown);
-    process.on('SIGTERM', shutdown);
-  } catch (error) {
-    console.error('Error al iniciar el servidor:', error);
-    process.exit(1);
-  }
+    } catch (error) {
+        console.error('Error al iniciar el servidor:', error);
+        process.exit(1);
+    }
 }
 
 startServer();

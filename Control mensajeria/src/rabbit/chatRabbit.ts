@@ -9,7 +9,7 @@ const RABBITMQ_WEB_STOMP_URL = process.env.RABBITMQ_WEB_STOMP_URL;
 const EXCHANGE_NAME = 'chat_exchange';
 const QUEUE_PREFIX = 'chat_queue_';
 
-class RabbitMQService {
+class ChatRabbitMQService {
     private connection: ChannelModel | null = null;
     private channel: Channel | null = null;  
 
@@ -142,5 +142,5 @@ class RabbitMQService {
   }
 }
 
-export const rabbitMQService = new RabbitMQService();
-export default rabbitMQService;
+export const chatRabbitMQService = new ChatRabbitMQService();
+export default chatRabbitMQService;

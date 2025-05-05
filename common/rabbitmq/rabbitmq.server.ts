@@ -13,9 +13,10 @@ class RabbitMQServer {
             await this.connection.connect();
             console.log("RabbitMQ server started.");
 
-            // Aquí van a registrar a los consumidores para las diferentes colas
             await this.consumeMessages(rabbitConfig.queues.default.name, this.handleDefaultMessage);
-            // Puedes agregar más consumidores para otras colas aquí
+
+            await this.consumeMessages(rabbitConfig.queues.notifications.name, this.handleNotificationMessage);
+
 
         } catch (error) {
             console.error("Error starting RabbitMQ server:", error);
@@ -24,7 +25,7 @@ class RabbitMQServer {
 
     private async consumeMessages(queueName: string, callback: (msg: any) => void): Promise<void> {
         try {
-            const channel = await this.connection.getChannel(); 
+            const channel = await this.connection.getChannel();
             if (!channel) {
                 console.error('Channel is not available for consumption.');
                 return;
@@ -33,9 +34,9 @@ class RabbitMQServer {
             await channel.consume(queueName, (msg: any) => {
                 if (msg !== null) {
                     callback(msg);
-                    channel.ack(msg); 
+                    channel.ack(msg);
                 }
-            }, { noAck: false }); 
+            }, { noAck: false });
 
             console.log(`Consuming messages from queue "${queueName}"...`);
 
@@ -47,14 +48,42 @@ class RabbitMQServer {
     private handleDefaultMessage(msg: any): void {
         const content = msg.content.toString();
         console.log(`Received message from "${rabbitConfig.queues.default.name}": ${content}`);
-      
+
         try {
             const messageData = JSON.parse(content);
             console.log("Parsed message data:", messageData);
-           
+
+            const notificationPayload = {
+                type: 'chat-message',
+                from: messageData.from,
+                to: messageData.to,
+                content: messageData.content,
+                timestamp: messageData.timestamp,
+                originalQueue: rabbitConfig.queues.default.name
+            };
+            const notificationBuffer = Buffer.from(JSON.stringify(notificationPayload));
+            this.connection.publish(
+                rabbitConfig.exchanges.notifications.name, 
+                '#',             
+                notificationBuffer
+            );
+            console.log(`Published notification to ${rabbitConfig.exchanges.notifications.name}`);
+
+
         } catch (error) {
             console.error("Error parsing JSON message:", error);
-           
+        }
+    }
+
+      private handleNotificationMessage(msg: any): void {
+        const content = msg.content.toString();
+        console.log(`Received notification from "${rabbitConfig.queues.notifications.name}": ${content}`);
+        try {
+            const notificationData = JSON.parse(content);
+            console.log("Parsed notification data:", notificationData);
+
+        } catch (error) {
+            console.error("Error parsing JSON notification message:", error);
         }
     }
 

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { chatService, ChatMessage } from '../services/chatService';
+import { chatService } from '../services/chatService';
 
 export class MessageController {
 
