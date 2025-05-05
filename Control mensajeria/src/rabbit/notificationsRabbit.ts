@@ -16,21 +16,21 @@ class NotificationRabbitMQService {
         try {
             console.log('NotificationRabbitMQService.initialize() - Iniciando...');
             this.connection = await amqp.connect(NOTIFICATION_RABBITMQ_URL);
-            console.log('NotificationRabbitMQService.initialize() - Conexión establecida:', this.connection);
+            //console.log('NotificationRabbitMQService.initialize() - Conexión establecida:', this.connection);
             this.channel = await this.connection.createChannel();
-            console.log('NotificationRabbitMQService.initialize() - Canal creado:', this.channel);
+            //console.log('NotificationRabbitMQService.initialize() - Canal creado:', this.channel);
 
             // Declare exchange
             await this.channel.assertExchange(NOTIFICATIONS_EXCHANGE_NAME, 'topic', { durable: true });
-            console.log(`NotificationRabbitMQService.initialize() - Exchange "${NOTIFICATIONS_EXCHANGE_NAME}" declarado.`);
+            //console.log(`NotificationRabbitMQService.initialize() - Exchange "${NOTIFICATIONS_EXCHANGE_NAME}" declarado.`);
 
             // Declare queue
             await this.channel.assertQueue(NOTIFICATIONS_QUEUE_NAME, { durable: true });
-            console.log(`NotificationRabbitMQService.initialize() - Queue "${NOTIFICATIONS_QUEUE_NAME}" declarada.`);
+            //console.log(`NotificationRabbitMQService.initialize() - Queue "${NOTIFICATIONS_QUEUE_NAME}" declarada.`);
 
             // Bind queue
             await this.channel.bindQueue(NOTIFICATIONS_QUEUE_NAME, NOTIFICATIONS_EXCHANGE_NAME, '#');
-            console.log(`NotificationRabbitMQService.initialize() - Queue "${NOTIFICATIONS_QUEUE_NAME}" vinculada a exchange "${NOTIFICATIONS_EXCHANGE_NAME}" con routing key "#".`);
+            //console.log(`NotificationRabbitMQService.initialize() - Queue "${NOTIFICATIONS_QUEUE_NAME}" vinculada a exchange "${NOTIFICATIONS_EXCHANGE_NAME}" con routing key "#".`);
 
             this.connection.on('error', (err) => {
                 console.error('Error en la conexión RabbitMQ:', err);
@@ -96,7 +96,7 @@ class NotificationRabbitMQService {
             return false;
         }
         try {
-            console.log(`NotificationRabbitMQService.publishMessage() - Publicando mensaje a exchange "${NOTIFICATIONS_EXCHANGE_NAME}" con routing key "${routingKey}":`, message);
+            //console.log(`NotificationRabbitMQService.publishMessage() - Publicando mensaje a exchange "${NOTIFICATIONS_EXCHANGE_NAME}" con routing key "${routingKey}":`, message);
             await this.channel.publish(NOTIFICATIONS_EXCHANGE_NAME, routingKey, Buffer.from(JSON.stringify(message)), { persistent: true });
             console.log(`NotificationRabbitMQService.publishMessage() - Mensaje publicado al exchange "${NOTIFICATIONS_EXCHANGE_NAME}" con routing key "${routingKey}":`, message);
             return true;

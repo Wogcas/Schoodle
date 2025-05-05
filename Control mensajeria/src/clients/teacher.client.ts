@@ -1,8 +1,10 @@
+import { WebSocket } from 'ws';
 import { Client, Message } from '@stomp/stompjs';
 import fetch from 'node-fetch';
 import readline from 'readline';
 
-const apiUrl = 'http://localhost:3000/api/messages';
+
+const apiUrl = 'http://localhost:4000/api/messages';
 const userType = 'teacher';
 const userId = 'teacher-456';
 const chatWith = 'parent-123';
@@ -29,6 +31,9 @@ async function main() {
                 passcode: 'guest'
             },
             reconnectDelay: 5000,
+            webSocketFactory: () => {
+                return new WebSocket(stompConfig.stompUrl);
+            },
         });
 
         // Conectar y suscribirse a cola

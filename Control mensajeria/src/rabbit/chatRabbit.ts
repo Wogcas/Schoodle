@@ -3,8 +3,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const RABBITMQ_URL = process.env.RABBITMQ_URL;
-const RABBITMQ_WEB_STOMP_URL = process.env.RABBITMQ_WEB_STOMP_URL;
+const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://guest:guest@localhost:5672";
+const RABBITMQ_WEB_STOMP_URL = process.env.RABBITMQ_WEB_STOMP_URL || "ws://localhost:15674/ws";
 
 const EXCHANGE_NAME = 'chat_exchange';
 const QUEUE_PREFIX = 'chat_queue_';

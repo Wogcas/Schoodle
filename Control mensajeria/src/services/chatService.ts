@@ -3,7 +3,7 @@ import { notificationService } from './notificationService';
 import { v4 as uuidv4 } from 'uuid';
 import { message } from '../types/message';
 
-const EXCHANGE_NAME = process.env.CHAT_EXCHANGE_NAME!;
+const EXCHANGE_NAME = process.env.CHAT_EXCHANGE_NAME! ||"chat_exchange";
 
 // Provisional
 const messagesDB: message[] = [];
