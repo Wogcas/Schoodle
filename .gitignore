@@ -1,6 +1,5 @@
-external-systems/school-system/.env
 .env
 /node_modules
-external-systems/school-system/node_modules
-external-systems/school-system/package-lock.json
-external-systems/school-system/package.json
+/.vscode
+/services/grade-submission-alert-service/node_modules
+/services/grades-sync-service/node_modules
