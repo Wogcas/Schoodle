@@ -2,3 +2,4 @@
 /node_modules
 /.vscode
 /services/grade-submission-alert-service/node_modules
+/services/grades-sync-service/node_modules
