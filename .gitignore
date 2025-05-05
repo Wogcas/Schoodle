@@ -1,4 +1,5 @@
 .env
+/node_modules
 external-systems/school-system/node_modules
 /services/grade-submission-alert-service/node_modules
 /.vscode
