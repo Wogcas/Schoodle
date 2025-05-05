@@ -1,11 +1,10 @@
 const express = require('express');
 const app = express();
 
+const { SERVER_PORT: PORT } = require('./config/constants');
 const gradesRouter = require('./routes/grades');
 const violationsRouter = require('./routes/violations');
 const systemRouter = require('./routes/system');
-
-const PORT = process.env.SERVER_PORT || 3000;
 
 app.use(express.json()); // Middleware to parse JSON requests
 app.use('/api/school-system/grades', gradesRouter);
