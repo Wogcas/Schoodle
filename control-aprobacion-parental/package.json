@@ -5,6 +5,7 @@
   "main": "controlAprobacionParentalRouter.js",
   "type": "module",
   "scripts": {
+    "start": "node --require ts-node/register ./server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,9 +14,14 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.13.3",
     "@grpc/proto-loader": "^0.7.15",
+    "amqplib": "^0.10.8",
     "axios": "^1.9.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "google-protobuf": "^3.21.4"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
   }
 }

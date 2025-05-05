@@ -1,24 +1,24 @@
 import amqplib from "amqplib";
-import rabbitConfig from "./rabbitmq.config";
+import rabbitmqConfig from "../utils/rabbitmqConfig.js";
 
 const TASK_SUBMISSION_QUEUE_NAME = 'taskSubmissions'; // Nombre para cola
 const TASK_SUBMISSION_EXCHANGE_NAME = 'taskEvents'; // Nombre del evento de tareas
 const TASK_SUBMISSION_ROUTING_KEY = '#';
 
-async function consumeRabbitTaskSubmissions() {
+export async function consumeRabbitTaskSubmissionsService() {
     let connection;
     let channel;
 
     try {
-        const { host, port, username, password, vhost } = rabbitConfig;
+        const { host, port, username, password, vhost } = rabbitmqConfig;
         const connectionUrl = `amqp://${username}:${password}@${host}:${port}${vhost ? `/${vhost}` : ''}`;
         connection = await amqplib.connect(connectionUrl);
         channel = await connection.createChannel();
 
-        const taskSubmissionExchange = rabbitConfig.exchanges[TASK_SUBMISSION_EXCHANGE_NAME] || { name: TASK_SUBMISSION_EXCHANGE_NAME, type: 'topic', options: { durable: true } };
+        const taskSubmissionExchange = rabbitmqConfig.exchanges[TASK_SUBMISSION_EXCHANGE_NAME] || { name: TASK_SUBMISSION_EXCHANGE_NAME, type: 'topic', options: { durable: true } };
         await channel.assertExchange(taskSubmissionExchange.name, taskSubmissionExchange.type, taskSubmissionExchange.options);
 
-        const parentalApprovalQueueConfig = rabbitConfig.queues[TASK_SUBMISSION_QUEUE_NAME] || { name: TASK_SUBMISSION_QUEUE_NAME, options: { durable: true } };
+        const parentalApprovalQueueConfig = rabbitmqConfig.queues[TASK_SUBMISSION_QUEUE_NAME] || { name: TASK_SUBMISSION_QUEUE_NAME, options: { durable: true } };
         const assertedQueue = await channel.assertQueue(parentalApprovalQueueConfig.name, parentalApprovalQueueConfig.options);
 
         // Vincula cola al evento de subir de tareas con la ruta de enrutamiento
@@ -50,4 +50,4 @@ async function consumeRabbitTaskSubmissions() {
     }
 }
 
-consumeRabbitTaskSubmissions().catch(console.error);
+consumeRabbitTaskSubmissionsService().catch(console.error);
