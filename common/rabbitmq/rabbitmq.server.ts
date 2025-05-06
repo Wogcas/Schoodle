@@ -13,9 +13,11 @@ class RabbitMQServer {
             await this.connection.connect();
             console.log("RabbitMQ server started.");
 
-            await this.consumeMessages(rabbitConfig.queues.default.name, this.handleDefaultMessage);
+            await this.consumeMessages(rabbitConfig.queues.default.name, this.handleDefaultMessage.bind(this));
 
             await this.consumeMessages(rabbitConfig.queues.notifications.name, this.handleNotificationMessage);
+
+            await this.consumeMessages(rabbitConfig.queues.tasks.name, this.handleTaskMessage);
 
 
         } catch (error) {
@@ -53,29 +55,27 @@ class RabbitMQServer {
             const messageData = JSON.parse(content);
             console.log("Parsed message data:", messageData);
 
-            const notificationPayload = {
-                type: 'chat-message',
-                from: messageData.from,
-                to: messageData.to,
-                content: messageData.content,
-                timestamp: messageData.timestamp,
-                originalQueue: rabbitConfig.queues.default.name
+            //RE-ROUTEAR EL MENSAJE A APROBACION PARENTAL
+            const taskEventPayload = {
+                fromDefaultQueue: true,
+                data: messageData,
+                timestamp: new Date().toISOString()
             };
-            const notificationBuffer = Buffer.from(JSON.stringify(notificationPayload));
-            this.connection.publish(
-                rabbitConfig.exchanges.notifications.name, 
-                '#',             
-                notificationBuffer
-            );
-            console.log(`Published notification to ${rabbitConfig.exchanges.notifications.name}`);
+            const taskEventBuffer = Buffer.from(JSON.stringify(taskEventPayload));
 
+            this.connection.publish(
+                rabbitConfig.exchanges.tasks.name, // Publicamos al exchange 'tasksEvents'
+                'default.message', // Puedes usar un routing key específico si lo deseas
+                taskEventBuffer
+            );
+            console.log(`Re-routed message from "${rabbitConfig.queues.default.name}" to exchange "${rabbitConfig.exchanges.tasks.name}"`);
 
         } catch (error) {
             console.error("Error parsing JSON message:", error);
         }
     }
 
-      private handleNotificationMessage(msg: any): void {
+    private handleNotificationMessage(msg: any): void {
         const content = msg.content.toString();
         console.log(`Received notification from "${rabbitConfig.queues.notifications.name}": ${content}`);
         try {
@@ -86,6 +86,19 @@ class RabbitMQServer {
             console.error("Error parsing JSON notification message:", error);
         }
     }
+
+    private handleTaskMessage(msg: any): void {
+        const content = msg.content.toString();
+        console.log(`Received task from "${rabbitConfig.queues.tasks.name}": ${content}`);
+        try {
+            const taskData = JSON.parse(content);
+            console.log("Parsed task data:", taskData);
+
+        } catch (error) {
+            console.error("Error parsing JSON task message:", error);
+        }
+    }
+
 
     async stop(): Promise<void> {
         await this.connection.close();

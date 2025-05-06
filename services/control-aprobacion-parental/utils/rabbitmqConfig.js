@@ -14,7 +14,7 @@ const rabbitmqConfig = {
     },
     exchanges: {
         taskEvents: {
-            name: process.env.RABBITMQ_TASK_EVENTS_EXCHANGE || 'taskEvents',
+            name: process.env.RABBITMQ_TASK_EVENTS_EXCHANGE || 'tasksEvents',
             type: 'topic',
             options: {
                 durable: true,
