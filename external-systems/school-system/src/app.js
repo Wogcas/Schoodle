@@ -2,13 +2,17 @@ const express = require('express');
 const app = express();
 
 const { SERVER_PORT: PORT } = require('./config/constants');
-const gradesRouter = require('./routes/grades');
-const violationsRouter = require('./routes/violations');
+/**
+    const gradesRouter = require('./routes/grades');
+    const violationsRouter = require('./routes/violations');
+*/
 const systemRouter = require('./routes/system');
 
 app.use(express.json()); // Middleware to parse JSON requests
-app.use('/api/school-system/grades', gradesRouter);
-app.use('/api/school-system/violations', violationsRouter);
+/**
+    app.use('/api/school-system/grades', gradesRouter);
+    app.use('/api/school-system/violations', violationsRouter);
+*/
 app.use('/api/school-system', systemRouter);
 
 // Basic route

@@ -10,11 +10,11 @@ async function bootstrap() {
     options: {
       package: 'moodle',
       protoPath: join(__dirname, 'protos/moodle-info.proto'),
-      url: 'localhost:50051',
+      url: 'localhost:50052',
     }
   });
 
   await app.startAllMicroservices();
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3002);
 }
 bootstrap();

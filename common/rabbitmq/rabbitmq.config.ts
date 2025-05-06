@@ -48,6 +48,12 @@ const rabbitConfig: RabbitMQConfig = {
                 durable: true,
             },
         },
+        tasks: {
+            name: process.env.RABBITMQ_TASKS_QUEUE || 'taskSubmissions',
+            options: {
+                durable: true,
+            },
+        }
     },
     exchanges: {
         default: {
@@ -74,6 +80,14 @@ const rabbitConfig: RabbitMQConfig = {
                 autoDelete: false,
             },
         },
+        tasks: {
+            name: process.env.RABBITMQ_TASKS_EXCHANGE || 'tasksEvents',
+            type: 'topic',
+            options: {
+                durable: true,
+                autoDelete: false,
+            },
+        }
     },
 };
 
