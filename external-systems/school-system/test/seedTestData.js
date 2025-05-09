@@ -14,25 +14,6 @@ const SCHOOL_TERMS = [
   { start: '2024-01-08', end: '2024-06-14' },
 ];
 
-const SUBJECTS = [
-  { 
-    name: 'Matemáticas',
-    units: [
-      { name: 'Álgebra', contributionPercentage: 30 },
-      { name: 'Geometría', contributionPercentage: 30 },
-      { name: 'Cálculo', contributionPercentage: 40 }
-    ]
-  },
-  {
-    name: 'Física',
-    units: [
-      { name: 'Mecánica', contributionPercentage: 40 },
-      { name: 'Termodinámica', contributionPercentage: 30 },
-      { name: 'Electromagnetismo', contributionPercentage: 30 }
-    ]
-  }
-];
-
 const TEACHERS = [
   { name: 'Juan', lastName: 'Pérez' },
   { name: 'María', lastName: 'García' },
@@ -43,15 +24,23 @@ const STUDENTS = Array.from({ length: 50 }, (_, i) => ({
   name: `Estudiante${i + 1}`,
   lastName: `Apellido${i + 1}`,
   birthDate: `200${Math.floor(i / 20)}-01-01`,
-  email: `estudiante${i + 1}@school.com`
+  email: `estudiante${i + 1}@school.com`,
+  idnumber: `STU${(i + 1).toString().padStart(4, '0')}` // Nuevo campo
 }));
 
 const TUTORS = Array.from({ length: 15 }, (_, i) => ({
   name: `Tutor${i + 1}`,
   lastName: `TutorApellido${i + 1}`,
   email: `tutor${i + 1}@school.com`,
-  phoneNumber: `555-100${i.toString().padStart(2, '0')}`
+  phoneNumber: `555-100${i.toString().padStart(2, '0')}`,
+  idnumber: `TUT${(i + 1).toString().padStart(4, '0')}` // Nuevo campo
 }));
+
+const COURSES = [ // Nueva estructura de cursos
+  { name: 'Matemáticas Básicas', idnumber: 'MATH-101' },
+  { name: 'Física Fundamental', idnumber: 'PHYS-101' },
+  { name: 'Programación I', idnumber: 'PROG-101' }
+];
 
 async function seed() {
   try {
@@ -62,22 +51,6 @@ async function seed() {
         termEndDate: t.end
       })));
 
-      console.log('Insertando materias y unidades...');
-      const subjects = [];
-      for (const subject of SUBJECTS) {
-        const [subjectId] = await trx('Subjects').insert({ name: subject.name });
-        
-        const unitsToInsert = subject.units.map(u => ({
-          name: u.name,
-          contributionPercentage: u.contributionPercentage,
-          subjectId: subjectId
-        }));
-        
-        await trx('Units').insert(unitsToInsert);
-        
-        subjects.push({ id: subjectId, ...subject });
-      }
-
       console.log('Insertando maestros...');
       const teachers = [];
       for (const teacher of TEACHERS) {
@@ -85,7 +58,8 @@ async function seed() {
           ...teacher,
           email: generateEmail(teacher.name, teacher.lastName),
           birthDate: '1980-01-01',
-          phoneNumber: '555-0000'
+          phoneNumber: '555-0000',
+          idnumber: `TCH${teachers.length + 1}`.padStart(7, '0') // Nuevo campo
         });
         teachers.push({ id: teacherId, ...teacher });
       }
@@ -117,13 +91,13 @@ async function seed() {
 
       console.log('Creando cursos...');
       const courses = [];
-      for (const subject of subjects) {
+      for (const courseData of COURSES) {
         const teacher = teachers[Math.floor(Math.random() * teachers.length)];
         const [courseId] = await trx('Courses').insert({
-          subjectId: subject.id,
+          ...courseData,
           teacherId: teacher.id
         });
-        courses.push({ id: courseId, subjectId: subject.id, teacherId: teacher.id });
+        courses.push({ id: courseId, ...courseData });
       }
 
       console.log('Inscribiendo estudiantes en periodos...');
@@ -142,39 +116,17 @@ async function seed() {
       console.log('Inscribiendo estudiantes en cursos...');
       const courseTakens = [];
       for (const enrollment of enrollments) {
-          const course = courses[Math.floor(Math.random() * courses.length)];
-          // Insertar con valor temporal en generalScore
-          const [courseTakenId] = await trx('CourseTaken').insert({
-              enrolledTermId: enrollment.id,
-              courseId: course.id,
-              generalScore: 0 // Valor temporal obligatorio
-          });
-          courseTakens.push({ 
-              id: courseTakenId, 
-              enrolledTermId: enrollment.id, 
-              courseId: course.id 
-          });
-      }
-
-      console.log('Generando calificaciones...');
-      for (const courseTaken of courseTakens) {
-        const course = await trx('Courses').where('id', courseTaken.courseId).first();
-        const units = await trx('Units').where('subjectId', course.subjectId);
-        
-        let generalScore = 0;
-        for (const unit of units) {
-          const score = randomGrade();
-          await trx('CourseTakenUnits').insert({
-            courseTakenId: courseTaken.id,
-            unitId: unit.id,
-            score: score
-          });
-          generalScore += score * (unit.contributionPercentage / 100);
-        }
-        
-        await trx('CourseTaken')
-          .where('id', courseTaken.id)
-          .update({ generalScore: generalScore.toFixed(2) });
+        const course = courses[Math.floor(Math.random() * courses.length)];
+        const [courseTakenId] = await trx('CourseTaken').insert({
+          enrolledTermId: enrollment.id,
+          courseId: course.id,
+          score: randomGrade() // Usamos score directamente
+        });
+        courseTakens.push({ 
+          id: courseTakenId, 
+          enrolledTermId: enrollment.id, 
+          courseId: course.id 
+        });
       }
 
       console.log('Actualizando promedios de periodos...');
@@ -186,11 +138,31 @@ async function seed() {
           const courseTakens = await trx('CourseTaken')
             .where('enrolledTermId', enrollment.id);
           
-          const average = courseTakens.reduce((acc, ct) => acc + ct.generalScore, 0) / courseTakens.length;
+          const average = courseTakens.reduce((acc, ct) => acc + ct.score, 0) / courseTakens.length;
           await trx('EnrolledTerms')
             .where('id', enrollment.id)
             .update({ gradeScore: average.toFixed(2) });
         }
+      }
+
+      console.log('Generando reportes de violaciones...');
+      const violations = [];
+      for (let i = 0; i < 10; i++) {
+        const teacher = teachers[Math.floor(Math.random() * teachers.length)];
+        const [violationId] = await trx('GradeSubmissionViolations').insert({
+          teacherId: teacher.id,
+          violationDate: '2023-01-01'
+        });
+        violations.push({ id: violationId });
+      }
+
+      console.log('Vinculando violaciones con cursos...');
+      for (const violation of violations) {
+        const courseTaken = courseTakens[Math.floor(Math.random() * courseTakens.length)];
+        await trx('SubmissionViolations').insert({
+          GradeSubmissionViolationId: violation.id,
+          CourseTakenId: courseTaken.id
+        });
       }
     });
 
