@@ -6,7 +6,7 @@ import readline from 'readline';
 
 const apiUrl = 'http://localhost:4000/api/messages';
 const userType = 'teacher';
-const userId = 'teacher-456';
+const userId = 'teacher-789';
 const chatWith = 'parent-123';
 
 const rl = readline.createInterface({
@@ -92,7 +92,7 @@ function sendMessage(client: Client, content: string) {
         body: JSON.stringify(message),
         headers: { 'content-type': 'application/json' }
     });
-    console.log(`[${userId}] Tú: ${content}`);
+    console.log(`[${new Date().toLocaleTimeString()}] Tú: ${content}`);
 }
 
 main();

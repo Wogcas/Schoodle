@@ -19,25 +19,3 @@ export const contextDB = new DataSource({
         Message,
     ]
 });
-
-/**
- 
-async function connectAndClose() {
-    try {
-        // Inicializa la conexión
-        await contextDB.initialize();
-        console.log("Conexión a la base de datos establecida");
-        // Aquí irían las operaciones con la base de datos
-        
-    } catch (error) {
-        console.error("Error al conectar con la base de datos:", error);
-    } finally {
-        // Cierra la conexión una vez terminada la operación
-        await contextDB.destroy();
-        console.log("Conexión cerrada");
-    }
-}
-
-
-connectAndClose();
-*/
