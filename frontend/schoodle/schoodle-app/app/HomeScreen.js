@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
-import { Colors } from '../../constants/Colors';
-import ActionButton from '../../components/ActionButton';
+import { Colors } from '../constants/Colors';
+import ActionButton from '../components/ActionButton';
 import { Link } from 'expo-router';
 
 const HomeScreen = () => {
@@ -15,11 +15,11 @@ const HomeScreen = () => {
       </View>
 
       <View style={styles.buttonsContainer}>
-        <Link href="/chat" asChild>
+        <Link href="/Chat" asChild>
           <ActionButton
             title="Chat"
             subtitle="Talk to the teacher"
-            iconSource={require('../../assets/images/chatting.png')}
+            iconSource={require('../assets/images/chatting.png')}
             buttonColor={Colors.blueButton}
           />
         </Link>
@@ -28,7 +28,7 @@ const HomeScreen = () => {
           <ActionButton
             title="Progress"
             subtitle="Student progress"
-            iconSource={require('../../assets/images/progress.png')}
+            iconSource={require('../assets/images/progress.png')}
             buttonColor={Colors.yellowButton}
           />
         </Link>
@@ -37,7 +37,7 @@ const HomeScreen = () => {
           <ActionButton
             title="Homework"
             subtitle="Assigned activities"
-            iconSource={require('../../assets/images/homework.png')}
+            iconSource={require('../assets/images/homework.png')}
             buttonColor={Colors.blueButton}
           />
         </Link>
@@ -46,7 +46,7 @@ const HomeScreen = () => {
           <ActionButton
             title="Account"
             subtitle="My account details"
-            iconSource={require('../../assets/images/account.png')}
+            iconSource={require('../assets/images/account.png')}
             buttonColor={Colors.yellowButton}
           />
         </Link>
