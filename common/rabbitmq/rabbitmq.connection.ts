@@ -45,8 +45,8 @@ class RabbitMQConnection {
                 console.log(`Queue "${queue.name}" bound to exchange "${rabbitConfig.exchanges.default.name}" with routing key "#".`);
             }
             if (queueKey === 'notifications' && rabbitConfig.exchanges.notifications.name) {
-                await this.channel.bindQueue(queue.name, rabbitConfig.exchanges.notifications.name, '#'); // Or a specific routing key
-                console.log(`Queue "${queue.name}" bound to exchange "${rabbitConfig.exchanges.notifications.name}" with routing key "#".`);
+                await this.channel.bindQueue(queue.name, rabbitConfig.exchanges.notifications.name, 'chat.message.notification'); // Or a specific routing key
+                console.log(`Queue "${queue.name}" bound to exchange "${rabbitConfig.exchanges.notifications.name}" with routing key "chat.message.notification".`);
             }
 
             if (queueKey === 'tasks' && rabbitConfig.exchanges.tasks.name) {
