@@ -1,12 +1,10 @@
-import { View } from "react-native";
-import { Slot } from "expo-router";
+import { Stack } from "expo-router";
 
-export default function Layout() {
+export default function RootLayout() {
     return (
-        <View >
-            <Slot />
-        </View>
-
-    )
-
+        <Stack>
+            <Stack.Screen name="index" options={{ title: "Home" }} />
+            <Stack.Screen name="Chat" />
+        </Stack>
+    );
 }
