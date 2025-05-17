@@ -3,6 +3,7 @@ import { Colors } from '../constants/Colors';
 import ActionButton from './ActionButton.jsx';
 import { Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import NotificationButton from './NotificationButton.jsx';
 
 /**
  * @component Main
@@ -14,11 +15,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
  */
 export function Main() {
     const insets = useSafeAreaInsets();
+
     return (
         <View style={[styles.container, { paddingTop: insets.top }]}>
-            <View style={styles.header}>
-                <Text style={styles.appName}>Schoodle</Text>
-                <Text style={styles.tagline}>for parents</Text>
+            <View style={styles.notificationContainer}>
+                <NotificationButton hasNotification />
+            </View>
+            <View style={styles.headerContainer}>
+                <View style={styles.header}>
+                    <Text style={styles.appName}>Schoodle</Text>
+                    <Text style={styles.tagline}>for parents</Text>
+                </View>
+
             </View>
 
             <View style={styles.buttonsContainer}>
@@ -68,10 +76,14 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
     },
-
-    header: {
+    headerContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
         paddingHorizontal: 20,
-        paddingTop: 40,
+        paddingTop: 20,
+    },
+    header: {
+        paddingTop: 20,
         paddingBottom: 30,
     },
     appName: {
@@ -83,8 +95,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: Colors.text,
     },
+    notificationContainer: {
+        alignItems: 'flex-end',
+        paddingTop: 20,
+        paddingRight: 30,
+    },
     buttonsContainer: {
         paddingHorizontal: 20,
     },
 });
-

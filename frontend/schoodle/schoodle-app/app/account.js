@@ -72,12 +72,6 @@ const styles = StyleSheet.create({
         flexDirection: "column"
     },
 
-    header: {
-        paddingHorizontal: 20,
-        paddingTop: 40,
-        paddingBottom: 30,
-    },
-
     profileContainer: {
         alignItems: 'center',
         paddingVertical: 30,
