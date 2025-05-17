@@ -21,7 +21,7 @@ const mockHomework = [
         description: 'Observe the correct application of formulas.',
         time: '15:00',
         status: 'pending',
-        destinationScreen: 'homework',
+        destinationScreen: 'homeworkValidation',
         params: { subjectId: 'math', assignmentId: '123' }
     },
     {
@@ -30,11 +30,10 @@ const mockHomework = [
         subtitle: 'Task 2. UDP Practice',
         time: '9:30',
         status: 'sent',
-        destinationScreen: 'homework',
+        destinationScreen: 'homeworkValidation',
         params: { subjectId: 'Distribuited System', assignmentId: '124' }
     },
 ];
-
 /**
  * @component homework
  * @description This component renders the homework board screen. It displays a

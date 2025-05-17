@@ -7,4 +7,5 @@ export const Colors = {
     yellowButton: '#F2E5A2',
     notificationRed: '#A62014',
     babyBlue: '#9EBEE8',
+    darkBlue: '#558ED9',
 };
