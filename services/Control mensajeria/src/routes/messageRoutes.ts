@@ -1,16 +1,17 @@
 import { Router } from 'express';
-import { messageController } from '../controllers/messageController';
+import { MessageController } from '../controllers/messageController';
 
-const router = Router();
+export const createMessageRouter = (messageControllerInstance: MessageController): Router => {
+    const router = Router();
 
-// Obtener historial de mensajes entre un padre y un maestro
-router.get('/history/:parentId/:teacherId', messageController.getMessageHistory);
+    // Ruta para obtener el historial de mensajes entre dos usuarios
+    router.get('/history/:user1Id/:user2Id', messageControllerInstance.getMessageHistory);
 
-// Marcar mensajes como leídos
-router.put('/:messageId/read', messageController.markAsRead);
+    // Ruta para marcar un mensaje como leído
+    router.post('/:messageId/read',messageControllerInstance.markAsRead);
 
+    // Ruta para obtener la configuración de STOMP
+    router.get('/stomp-config', messageControllerInstance.getStompConfig);
 
-// Obtener configuración STOMP
-router.get('/stomp-config', messageController.getStompConfig);
-
-export { router as messageRouter };
+    return router;
+};
