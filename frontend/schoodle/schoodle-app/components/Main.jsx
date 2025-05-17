@@ -1,10 +1,17 @@
-import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../constants/Colors';
-import ActionButton from './ActionButton';
+import ActionButton from './ActionButton.jsx';
 import { Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+/**
+ * @component Main
+ * @description The main screen component for the parent's section of the Schoodle app.
+ * It displays a header with the app name and tagline, followed by a series of ActionButtons
+ * that navigate to different sections of the app.
+ *
+ * @returns {View} The main screen view containing the header and action buttons.
+ */
 export function Main() {
     const insets = useSafeAreaInsets();
     return (
@@ -15,7 +22,7 @@ export function Main() {
             </View>
 
             <View style={styles.buttonsContainer}>
-                <Link href="/Chat" asChild>
+                <Link href="/chat" asChild>
                     <ActionButton
                         title="Chat"
                         subtitle="Talk to the teacher"
@@ -55,6 +62,7 @@ export function Main() {
     );
 };
 
+// Define the StyleSheet for styling the Main component.
 const styles = StyleSheet.create({
     container: {
         flex: 1,

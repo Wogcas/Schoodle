@@ -1,7 +1,7 @@
-import React from 'react';
+
 import { ScrollView, Text, StyleSheet } from 'react-native';
 
-export default function Chat() {
+export default function chat() {
     return (
         <ScrollView>
             <Text style={styles.container}>
