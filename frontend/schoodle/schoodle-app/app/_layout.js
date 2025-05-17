@@ -28,6 +28,9 @@ export default function RootLayout() {
             <Stack.Screen name="account" options={{
                 contentStyle: { flex: 1, backgroundColor: Colors.background },
             }} />
+            <Stack.Screen name="homework" options={{
+                contentStyle: { flex: 1, backgroundColor: Colors.background },
+            }} />
         </Stack>
     );
 }

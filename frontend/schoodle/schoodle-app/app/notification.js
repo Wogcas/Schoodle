@@ -87,21 +87,21 @@ const mockNotifications = [
  */
 export default function notification() {
     const insets = useSafeAreaInsets();
-    const [filteredNotifications, setFilteredNotifications] = useState(mockNotifications);
+    const [filteredArray, setFilteredNotifications] = useState(mockNotifications);
 
     return (
-        <View style={[styles.container, { paddingTop: insets.top }]}>
+        <ScrollView style={[styles.container, { paddingTop: insets.top }]}>
             <Header
                 title="Notifications"
             />
             <SearchBar
-                notifications={mockNotifications}
+                arrayToFilter={mockNotifications}
                 onFilterChange={setFilteredNotifications}
             />
 
-            <ScrollView style={styles.notificationContainer}>
-                {filteredNotifications.length > 0 ? (
-                    filteredNotifications.map((notification) => (
+            <View style={styles.notificationContainer}>
+                {filteredArray.length > 0 ? (
+                    filteredArray.map((notification) => (
                         <Link
                             key={notification.id}
                             href={{
@@ -123,11 +123,11 @@ export default function notification() {
                     ))
                 ) : (
                     <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>No se encontraron notificaciones</Text>
+                        <Text style={styles.emptyText}>No notifications found</Text>
                     </View>
                 )}
-            </ScrollView>
-        </View>
+            </View>
+        </ScrollView >
     );
 }
 

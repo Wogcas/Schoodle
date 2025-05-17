@@ -6,32 +6,32 @@ import { Colors } from '../constants/Colors';
 
 /**
  * SearchBar component that filters notifications in real time
- * @param {Array} notifications - Array of notifications to filter
+ * @param {Array} arrayToFilter - Array of notifications to filter
  * @param {Function} onFilterChange - Callback function that receives the filtered notifications
  * @returns {JSX.Element}
  */
-const SearchBar = ({ notifications = [], onFilterChange }) => {
+const SearchBar = ({ arrayToFilter = [], onFilterChange }) => {
     const [searchText, setSearchText] = useState('');
 
     // Effect to filter notifications when text changes
     useEffect(() => {
         if (searchText.trim() === '') {
-            onFilterChange && onFilterChange(notifications);
+            onFilterChange && onFilterChange(arrayToFilter);
             return;
         }
 
-        const filteredNotifications = notifications.filter(notification => {
+        const filteredArray = arrayToFilter.filter(item => {
             const searchTextLower = searchText.toLowerCase();
 
             return (
-                (notification.title && notification.title.toLowerCase().includes(searchTextLower)) ||
-                (notification.subtitle && notification.subtitle.toLowerCase().includes(searchTextLower)) ||
-                (notification.description && notification.description.toLowerCase().includes(searchTextLower))
+                (item.title && item.title.toLowerCase().includes(searchTextLower)) ||
+                (item.subtitle && item.subtitle.toLowerCase().includes(searchTextLower)) ||
+                (item.description && item.description.toLowerCase().includes(searchTextLower))
             );
         });
 
-        onFilterChange && onFilterChange(filteredNotifications);
-    }, [searchText, notifications]);
+        onFilterChange && onFilterChange(filteredArray);
+    }, [searchText, arrayToFilter]);
 
     const handleClearSearch = () => {
         setSearchText('');
