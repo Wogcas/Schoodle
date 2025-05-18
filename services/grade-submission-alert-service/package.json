@@ -1,0 +1,19 @@
+{
+  "name": "grade-submission-alert-service",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test:connections": "tsx tests/connections.test.ts"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.8",
+    "axios": "^1.9.0",
+    "dotenv": "^16.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.32",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3"
+  }
+}
