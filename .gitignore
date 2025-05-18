@@ -3,3 +3,5 @@
 /.vscode
 /services/grade-submission-alert-service/node_modules
 /services/grades-sync-service/node_modules
+.DS_Store
+.DS_Store
