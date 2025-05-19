@@ -1,6 +1,7 @@
 import express from 'express';
 import { SERVER_PORT, SERVER_HOST } from './config/constants';
 import systemRoutes from './routes/system';
+import studentRoutes from './routes/student';
 
 const app = express();
 
@@ -11,5 +12,6 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/school-system', systemRoutes);
+app.use('/api/school-system/student', studentRoutes );
 
 export default app;

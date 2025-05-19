@@ -1,5 +1,5 @@
 /** Microservicio Consulta estudiantes */
-// TODO: Obtener estudiantes por de determinado tutor por idNumber del tutor
+LISTO// TODO: Obtener estudiantes por determinado tutor por idNumber del tutor
 
 /** Servicio Mensajes */
 // TODO: Obtener maestros de cursos a los que está actualmente inscrito un estudiante por idNumber del estudiante

@@ -6,10 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const constants_1 = require("./config/constants");
 const system_1 = __importDefault(require("./routes/system"));
+const student_1 = __importDefault(require("./routes/student"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.get('/', (req, res) => {
     res.send(`Welcome to the School System API! call http://${constants_1.SERVER_HOST}:${constants_1.SERVER_PORT}/api/school-system/info to get system information.`);
 });
 app.use('/api/school-system', system_1.default);
+app.use('/api/school-system/student', student_1.default);
 exports.default = app;

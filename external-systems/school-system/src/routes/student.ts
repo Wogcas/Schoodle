@@ -1,4 +1,11 @@
 import express from 'express';
-const router = express.Router();
-//import StudentController from '../controllers/StudentController';
+import  StudentController  from '../controllers/StudentController';
 
+const router = express.Router();
+
+router.get<{ tutorIdNumber: string }>(
+  '/by-tutor/:tutorIdNumber',
+  StudentController.getStudentsByTutor
+);
+
+export default router;
