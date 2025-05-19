@@ -5,87 +5,212 @@ import "google/protobuf/timestamp.proto";
 
 service MoodleInfoService {
 
-  // Get site information
-  rpc GetSiteInfo(SiteInfoRequest) returns (SiteInfoResponse) {}
+  // Site 
+  rpc GetSiteInfo(Empty) returns (SiteInfoResponse) {}
+
+  // Courses
+  rpc ListAllCourses(Empty) returns (ListCoursesResponse) {}
+  rpc GetCourseContents(CourseIdRequest) returns (CourseContentsList) {}
+  rpc GetUserCourses(UserIdRequest) returns (UserCoursesResponse) {}
   
-  // Get user information
-  rpc GetUser(UserRequest) returns (UserResponse) {}
+  // Users
+  rpc GetEnrolledUsers(EnrolledUsersRequest) returns (EnrolledUsersResponse) {}
 
-  // Get course information
-  rpc GetCourse(CourseRequest) returns (CourseResponse) {}
-  rpc GetListOfCourses(UserRequest) returns (CourseResponse) {}
-
-  // Get assignment information
-  rpc GetAssignment(AssignmentRequest) returns (AssignmentResponse) {}
-  rpc GetListOfAssignments(CourseRequest) returns (AssignmentResponse) {}
-
-  // Get grade information
-  rpc GetGrade(GradeRequest) returns (GradeResponse) {}
-  rpc GetListOfGrades(UserRequest) returns (GradeResponse) {}
+  // Assignments
+  rpc GetCourseAssignments(CourseIdRequest) returns (CourseAssignmentsResponse) {}
+  rpc GetAssignmentsBetweenDates(AssignmentDateRequest) returns (AssignmentsResponse) {}
 
 }
 
-// Request messages
-message SiteInfoRequest {
-    // Not needed
-}
+// Common messages
 
-message UserRequest {
-    int32 id = 1; 
-}
+message Empty {}
 
-message CourseRequest {
-    int32 id = 1; 
-}
 
-message AssignmentRequest {
-    int32 id = 1;
-}
+/////////////////////////////////////
 
-message GradeRequest {
-    int32 id = 1;
-}
+// Get site information
 
-// Response messages
 message SiteInfoResponse {
   string sitename = 1;
   string siteurl = 2;
   repeated Function functions = 3;
   int32 userid = 4;
-
 }
 
 message Function {
   string name = 1;
   string version = 2;
 }
-  
 
+/////////////////////////////////////
 
-message UserResponse {
-  int32 id = 1;
-  string username = 2;
-  string email = 3;
+// List all courses
+
+message ListCoursesResponse {
+  repeated Course courses = 1;
 }
 
-message CourseResponse {
+message Course {
   int32 id = 1;
-  string shortname = 2;
-  string fullname = 3;
-  google.protobuf.Timestamp startdate = 4;
-  google.protobuf.Timestamp enddate = 5;
+  string fullname = 2;
+  string displayname = 3;
+  string idnumber = 4;
+  string format = 5;
+  int64 timecreated = 6; // Unix timestamp
+  int64 timemodified = 7; // Unix timestamp
 }
 
-message AssignmentResponse {
+/////////////////////////////////////
+
+// Get course contents
+
+message CourseIdRequest {
+  int32 courseid = 1;
+}
+
+message CourseContentsList {
+  repeated CourseSection contents = 1; 
+}
+
+message CourseSection {
   int32 id = 1;
   string name = 2;
-  string description = 3;
-  google.protobuf.Timestamp duedate = 4;
+  int32 section = 3;
+  repeated CourseModule modules = 4;
 }
 
-message GradeResponse {
+message CourseModule {
   int32 id = 1;
-  int32 userid = 2;
-  int32 assignmentId = 3;
-  float grade = 4;
+  string name = 2;
+  repeated ModuleDate dates = 3;
 }
+
+message ModuleDate {
+  string label = 1;
+  int64 timestamp = 2;
+}
+
+/////////////////////////////////////
+
+// Get enrolled users
+
+message UserIdRequest {
+  int32 userid = 1;
+}
+
+message UserCoursesResponse {
+  repeated UserCourse courses = 1;
+}
+
+message UserCourse {
+  int32 id = 1;
+  string fullname = 2;
+  string displayname = 3;
+  string idnumber = 4;
+  string format = 5;
+  int64 timemodified = 6; // Unix timestamp
+}
+
+/////////////////////////////////////
+
+// Get enrolled users
+
+message EnrolledUsersRequest {
+  int32 courseid = 1;
+}
+
+message EnrolledUsersResponse {
+  repeated EnrolledUser users = 1;
+}
+
+message EnrolledUser {
+  int32 id = 1;
+  string username = 2;
+  string firstname = 3;
+  string lastname = 4;
+  string fullname = 5;
+  string email = 6;
+  repeated UserCourseEnrolled enrolledcourses = 7;
+  repeated UserRole roles = 8;
+}
+
+message UserCourseEnrolled {
+  int32 id = 1;
+  string fullname = 2;
+  string shortname = 3;
+}
+
+message UserRole {
+  int32 roleid = 1;
+  string shortname = 2;
+}
+
+/////////////////////////////////////
+
+// Get course assignments
+
+message CourseAssignmentsResponse {
+  repeated CourseAssignment assignments = 1;
+}
+
+message CourseAssignment {
+  int32 id = 1;
+  int32 cmid = 2;
+  int32 course = 3;
+  string name = 4;
+  bool sendnotifications = 5;
+  int64 duedate = 6;  // Unix timestamp
+  int32 grade = 7;
+  string intro = 8;
+}
+
+/////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+message Assignment {
+  int32 id = 1;
+  int32 cmid = 2;
+  int32 course = 3;
+  string name = 4;
+  bool sendnotifications = 5;
+  google.protobuf.Timestamp duedate = 6;
+  int32 grade = 7;
+  string intro = 8;
+}
+
+
+
+
+
+
+message AssignmentDateRequest {
+  int32 courseid = 1;
+  string startdate = 2;  // Format: YYYY-MM-DD
+  string enddate = 3;    // Format: YYYY-MM-DD
+}
+
+
+
+message AssignmentsResponse {
+  repeated Assignment assignments = 1;
+}
+
+
+
+

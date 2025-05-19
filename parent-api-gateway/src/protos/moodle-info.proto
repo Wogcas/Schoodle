@@ -5,48 +5,98 @@ import "google/protobuf/timestamp.proto";
 
 service MoodleInfoService {
 
-  // Get site information
+  // Site 
   rpc GetSiteInfo(SiteInfoRequest) returns (SiteInfoResponse) {}
+
+  // Courses
+  rpc ListAllCourses(CoursesRequest) returns (ListCoursesResponse) {}
+  rpc GetCourseContents(CourseIdRequest) returns (CourseContentsResponse) {}
+  rpc GetUserCourses(UserIdRequest) returns (ListCoursesResponse) {}
   
-  // Get user information
-  rpc GetUser(UserRequest) returns (UserResponse) {}
-
-  // Get course information
-  rpc GetCourse(CourseRequest) returns (CourseResponse) {}
-  rpc GetListOfCourses(UserRequest) returns (CourseResponse) {}
-
-  // Get assignment information
-  rpc GetAssignment(AssignmentRequest) returns (AssignmentResponse) {}
-  rpc GetListOfAssignments(CourseRequest) returns (AssignmentResponse) {}
-
-  // Get grade information
-  rpc GetGrade(GradeRequest) returns (GradeResponse) {}
-  rpc GetListOfGrades(UserRequest) returns (GradeResponse) {}
-
+  // Users
+  rpc GetEnrolledUsers(CourseIdRequest) returns (EnrolledUsersResponse) {}
+  
+  // Assignments
+  rpc GetCourseAssignments(CourseIdRequest) returns (AssignmentsResponse) {}
+  rpc GetAssignmentsBetweenDates(AssignmentDateRequest) returns (AssignmentsResponse) {}
 }
 
-// Request messages
+// Common Messages
+message Course {
+  int32 id = 1;
+  string fullname = 2;
+  string displayname = 3;
+  string idnumber = 4;
+  string format = 5;
+  int64 timecreated = 6;
+  int64 timemodified = 7;
+}
+
+message User {
+  int32 id = 1;
+  string username = 2;
+  string firstname = 3;
+  string lastname = 4;
+  string fullname = 5;
+  string email = 6;
+  repeated Course enrolled_courses = 7;
+  repeated UserRole roles = 8;
+}
+
+message UserRole {
+  int32 roleid = 1;
+  string shortname = 2;
+}
+
+message CourseSection {
+  int32 id = 1;
+  string name = 2;
+  int32 section = 3;
+  repeated CourseModule modules = 4;
+}
+
+message CourseModule {
+  int32 id = 1;
+  string name = 2;
+  repeated ModuleDate dates = 3;
+}
+
+message ModuleDate {
+  string label = 1;
+  int64 timestamp = 2;
+}
+
+message Assignment {
+  int32 id = 1;
+  int32 cmid = 2;
+  int32 course = 3;
+  string name = 4;
+  bool sendnotifications = 5;
+  google.protobuf.Timestamp duedate = 6;
+  int32 grade = 7;
+  string intro = 8;
+}
+
+// Request Messages
 message SiteInfoRequest {
     // Not needed
 }
 
-message UserRequest {
-    int32 id = 1; 
+message CourseIdRequest {
+  int32 course_id = 1;
 }
 
-message CourseRequest {
-    int32 id = 1; 
+message UserIdRequest {
+  int32 user_id = 1;
 }
 
-message AssignmentRequest {
-    int32 id = 1;
+message AssignmentDateRequest {
+  int32 course_id = 1;
+  string start_date = 2;  // Format: YYYY-MM-DD
+  string end_date = 3;    // Format: YYYY-MM-DD
 }
 
-message GradeRequest {
-    int32 id = 1;
-}
-
-// Response messages
+// Response Messages
 message SiteInfoResponse {
   string sitename = 1;
   string siteurl = 2;
@@ -55,37 +105,30 @@ message SiteInfoResponse {
 
 }
 
+message CoursesRequest {
+}
+
 message Function {
   string name = 1;
   string version = 2;
 }
-  
 
-
-message UserResponse {
-  int32 id = 1;
-  string username = 2;
-  string email = 3;
+message ListCoursesResponse {
+  repeated Course courses = 1;
 }
 
-message CourseResponse {
-  int32 id = 1;
-  string shortname = 2;
-  string fullname = 3;
-  google.protobuf.Timestamp startdate = 4;
-  google.protobuf.Timestamp enddate = 5;
+message CourseContentsResponse {
+  repeated CourseSection sections = 1;
 }
 
-message AssignmentResponse {
-  int32 id = 1;
-  string name = 2;
-  string description = 3;
-  google.protobuf.Timestamp duedate = 4;
+message EnrolledUsersResponse {
+  repeated User users = 1;
 }
 
-message GradeResponse {
-  int32 id = 1;
-  int32 userid = 2;
-  int32 assignmentId = 3;
-  float grade = 4;
+message AssignmentsResponse {
+  repeated Assignment assignments = 1;
 }
+
+
+
+

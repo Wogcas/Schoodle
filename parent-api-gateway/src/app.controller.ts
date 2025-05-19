@@ -1,32 +1,53 @@
-import { Controller, Get, Inject, OnModuleInit } from '@nestjs/common';
-import { AppService } from './app.service';
-import { ClientGrpc } from '@nestjs/microservices';
+import { Controller, Get, Param } from "@nestjs/common";
+import { MoodleInfoService } from "./services/moodle-info.service";
+import { ParentalApprovalService } from "./services/parental-approval.service";
+import { AppService } from "./app.service";
+
+
 
 @Controller()
-export class AppController implements OnModuleInit {
-  private moodleInfoService;
-  private parentalApprovalService;
-  constructor(private readonly appService: AppService,
-    @Inject('STUDENT_PROGRESS_SERVICE') private client: ClientGrpc,
-    @Inject('PARENTAL_APPROVAL_SERVICE') private client2: ClientGrpc,
+export class AppController {
+
+  constructor(
+    private readonly appService: AppService,
+    private readonly moodleInfoService: MoodleInfoService,
+    private readonly parentalApprovalService: ParentalApprovalService,
   ) {}
-  onModuleInit(){
-    this.moodleInfoService = this.client.getService('MoodleInfoService');
-    this.parentalApprovalService = this.client2.getService('ParentalApprovalManagementGrpcService');
-  }
 
   @Get()
   getHello(): string {
     return this.appService.getHello();
   }
 
-  @Get('moodle')
-  async getMoodleInfo() {
-    return await this.moodleInfoService.GetSiteInfo({});
+  @Get()
+  getMoodleInfo(): string {
+    return this.moodleInfoService.getHello();
   }
+
+  @Get('course/:id')
+  async getCourseInfo(@Param('id') id: number) {
+    return await this.moodleInfoService.getCourseContents(id );
+  }
+
+  /**
+    @Get('moodle')
+    async getMoodleInfo() {
+      return await this.moodleInfoService.GetSiteInfo({});
+    }
   
-  @Get('parentalapprovalmanagement')
-  async getSiteInfoTestParentalApproval() {
-    return await this.parentalApprovalService.GetSiteInfo({});
-  }
+    @Get('moodle/courses')
+    async getMoodleCourses() {
+      return await this.moodleInfoService.ListAllCourses({});
+    }
+  
+    @Get('moodle/courses/:id/contents')
+    async getMoodleCourseContents(@Param('id') id: number) {
+      return await this.moodleInfoService.GetCourseContents({ courseid: id });
+    }
+  
+    @Get('parentalapprovalmanagement')
+    async getSiteInfoTestParentalApproval() {
+      return await this.parentalApprovalService.GetSiteInfo({});
+    }
+  */
 }
