@@ -3,10 +3,11 @@ import { AppService } from './app.service';
 import { GrpcMethod } from '@nestjs/microservices';
 import { SiteInfoDTO } from './dtos/site-info.dto';
 import { GrpcListCoursesResponse } from './grpc/course.interface';
-import { CourseContentsList, CourseIdRequest, GrpcCourseSection } from './grpc/course-content.interface';
+import { CourseContentsList, CourseIdRequest } from './grpc/course-content.interface';
 import { UserCoursesResponse, UserIdRequest } from './grpc/user-courses.interface';
 import { EnrolledUsersRequest, EnrolledUsersResponse } from './grpc/enrolled-users.interface';
-import { CourseAssignmentsResponse } from './grpc/course-assignments.interface';
+import { AssignmentDateRequest, CourseAssignmentsResponse } from './grpc/course-assignments.interface';
+import { UserGradesByTypeRequest, UserGradesResponse } from './grpc/user-grades.interface';
 
 @Controller()
 export class AppController {
@@ -42,7 +43,6 @@ export class AppController {
   @GrpcMethod('MoodleInfoService', 'GetCourseContents')
   async getCourseContents(data: CourseIdRequest): Promise<CourseContentsList> {
     try {
-      this.logger.log(`Processing request for course ID: ${data.courseid}`);
       const contents = await this.appService.fetchMoodleCourseContents(data.courseid);
       return { contents };
     } catch (error) {
@@ -53,7 +53,6 @@ export class AppController {
   @GrpcMethod('MoodleInfoService', 'GetUserCourses')
   async getUserCourses(data: UserIdRequest): Promise<UserCoursesResponse> {
     try {
-      this.logger.log(`Fetching courses for user ID: ${data.userid}`);
       const courses = await this.appService.fetchMoodleUserCourses(data.userid);
       return { courses };
     } catch (error) {
@@ -64,7 +63,6 @@ export class AppController {
   @GrpcMethod('MoodleInfoService', 'GetEnrolledUsers')
   async getEnrolledUsers(data: EnrolledUsersRequest): Promise<EnrolledUsersResponse> {
     try {
-      this.logger.log(`Fetching enrolled users for course ID: ${data.courseid}`);
       const users = await this.appService.fetchEnrolledUsers(data.courseid);
       return { users };
     } catch (error) {
@@ -75,12 +73,41 @@ export class AppController {
   @GrpcMethod('MoodleInfoService', 'GetCourseAssignments')
   async getCourseAssignments(data: CourseIdRequest): Promise<CourseAssignmentsResponse> {
     try {
-      this.logger.log(`Fetching assignments for course ID: ${data.courseid}`);
       const assignments = await this.appService.fetchCourseAssignments(data.courseid);
       return { assignments };
     } catch (error) {
       this.logger.error(`Failed to fetch assignments for course ${data.courseid}:`, error.stack);
       throw new error('Failed to fetch course assignments');
+    }
+  }
+
+  @GrpcMethod('MoodleInfoService', 'GetAssignmentsBetweenDates')
+  async getAssignmentsBetweenDates(data: AssignmentDateRequest): Promise<CourseAssignmentsResponse> {
+    try {
+      const assignments = await this.appService.fetchAssignmentsBetweenDates(
+        data.courseid,
+        data.startdate,
+        data.enddate
+      );
+      return { assignments };
+    } catch (error) {
+      this.logger.error(`Failed to fetch assignments between dates for course ${data.courseid}:`, error.stack);
+      throw new Error('Failed to fetch assignments between dates');
+    }
+  }
+
+  @GrpcMethod('MoodleInfoService', 'GetUserGradesByType')
+  async getUserGradesByType(data: UserGradesByTypeRequest): Promise<UserGradesResponse> {
+    try {
+      this.logger.log(`Fetching ${data.gradeitem} grades for user ${data.userid} in course ${data.courseid}`);
+      return await this.appService.fetchUserGradesByType(
+        data.courseid,
+        data.userid,
+        data.gradeitem
+      );
+    } catch (error) {
+      this.logger.error(`Failed to fetch user grades by type:`, error.stack);
+      throw new Error('Failed to fetch user grades by type');
     }
   }
 

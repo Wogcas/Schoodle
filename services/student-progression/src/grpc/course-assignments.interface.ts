@@ -12,3 +12,9 @@ export interface CourseAssignment {
 export interface CourseAssignmentsResponse {
   assignments: CourseAssignment[];
 }
+
+export interface AssignmentDateRequest {
+  courseid: number;
+  startdate: string;
+  enddate: string;
+}

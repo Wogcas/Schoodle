@@ -7,6 +7,7 @@ import { GrpcCourseModule, GrpcCourseSection, GrpcModuleDate } from "src/grpc/co
 import { GrpcCourse } from "src/grpc/course.interface";
 import { EnrolledUser } from "src/grpc/enrolled-users.interface";
 import { UserCourse } from "src/grpc/user-courses.interface";
+import { UserGradesResponse } from "src/grpc/user-grades.interface";
 
 @Injectable()
 export class MapperService {
@@ -103,6 +104,22 @@ export class MapperService {
             grade: assignment.grade,
             intro: assignment.intro
         };
+    }
+
+    mapUserGradesResponse(data: any): UserGradesResponse {
+        return {
+            courseid: Number(data.courseid),
+            userid: Number(data.userid),
+            userfullname: String(data.userfullname),
+            gradeItems: this.mapGradeItems(data.gradeItems)
+        };
+    }
+
+    private mapGradeItems(items: any[]): { itemname: string, grade: string }[] {
+        return items.map(item => ({
+            itemname: String(item.itemname),
+            grade: String(item.grade)
+        }));
     }
 
     private convertDateToTimestamp(dateStr: string): number {

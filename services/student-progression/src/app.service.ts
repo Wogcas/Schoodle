@@ -12,6 +12,7 @@ import { GrpcCourseSection } from './grpc/course-content.interface';
 import { UserCourse } from './grpc/user-courses.interface';
 import { EnrolledUser } from './grpc/enrolled-users.interface';
 import { CourseAssignment } from './grpc/course-assignments.interface';
+import { UserGradesResponse } from './grpc/user-grades.interface';
 
 @Injectable()
 export class AppService {
@@ -99,14 +100,39 @@ export class AppService {
   }
 
 
+  async fetchAssignmentsBetweenDates(
+    courseid: number,
+    startdate: string,
+    enddate: string
+  ): Promise<CourseAssignment[]> {
+    try {
+      const url = `/assignments/${courseid}/between/${startdate}/${enddate}`;
+      const response = await firstValueFrom(
+        this.httpService.get(url)
+      );
+      return this.mapperService.mapCourseAssignments(response.data);
+    } catch (error) {
+      this.logger.error(`Error fetching assignments between dates for course ${courseid}:`, error);
+      throw error;
+    }
+  }
+
+  async fetchUserGradesByType(
+    courseId: number,
+    userId: number,
+    gradeItem: string
+  ): Promise<UserGradesResponse> {
+    try {
+      const url = `/courses/${courseId}/users/${userId}/grades/${gradeItem}`;
+      const response = await firstValueFrom(
+        this.httpService.get(url)
+      );
+      return this.mapperService.mapUserGradesResponse(response.data);
+    } catch (error) {
+      this.logger.error(`Error fetching grades for user ${userId}:`, error);
+      throw error;
+    }
+  }
 
 
-
-
-
-
-
-
-
-  
 }
