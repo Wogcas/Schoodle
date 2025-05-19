@@ -1,12 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
-import { plainToClass, plainToInstance } from 'class-transformer';
-import { SiteInfoDTO } from './dtos/site-info.dto';
-import { enviroment } from './config/enviroment.config';
-import { CourseDTO } from './dtos/course.dto';
 import { MapperService } from './mapper/mapper.service';
-import { CourseContentDTO } from './dtos/course-content.dto';
 import { GrpcCourse } from './grpc/course.interface';
 import { GrpcCourseSection } from './grpc/course-content.interface';
 import { UserCourse } from './grpc/user-courses.interface';
@@ -26,17 +21,6 @@ export class AppService {
 
   getHello(): string {
     return 'Hello World!';
-  }
-
-  async fetchMoodleSiteInfo(): Promise<SiteInfoDTO> {
-    try {
-      const response = await firstValueFrom(
-        this.httpService.get('/site-info'),
-      );
-      return plainToClass(SiteInfoDTO, response.data);
-    } catch (error) {
-      throw new Error('Couldnt fetch Moodle site info');
-    }
   }
 
   async fetchMoodleCourses(): Promise<GrpcCourse[]> {

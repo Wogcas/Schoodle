@@ -1,7 +1,4 @@
 import { Injectable } from "@nestjs/common";
-import { timestamp } from "rxjs";
-import { CourseContentDTO } from "src/dtos/course-content.dto";
-import { CourseDTO } from "src/dtos/course.dto";
 import { CourseAssignment } from "src/grpc/course-assignments.interface";
 import { GrpcCourseModule, GrpcCourseSection, GrpcModuleDate } from "src/grpc/course-content.interface";
 import { GrpcCourse } from "src/grpc/course.interface";

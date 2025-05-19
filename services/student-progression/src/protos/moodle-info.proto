@@ -5,9 +5,6 @@ import "google/protobuf/timestamp.proto";
 
 service MoodleInfoService {
 
-  // Site 
-  rpc GetSiteInfo(Empty) returns (SiteInfoResponse) {}
-
   // Courses
   rpc ListAllCourses(Empty) returns (ListCoursesResponse) {}
   rpc GetCourseContents(CourseIdRequest) returns (CourseContentsList) {}
@@ -29,23 +26,6 @@ service MoodleInfoService {
 // Common messages
 
 message Empty {}
-
-
-/////////////////////////////////////
-
-// Get site information
-
-message SiteInfoResponse {
-  string sitename = 1;
-  string siteurl = 2;
-  repeated Function functions = 3;
-  int32 userid = 4;
-}
-
-message Function {
-  string name = 1;
-  string version = 2;
-}
 
 /////////////////////////////////////
 

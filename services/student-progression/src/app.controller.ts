@@ -1,7 +1,6 @@
 import { Controller, Get, Logger } from '@nestjs/common';
 import { AppService } from './app.service';
 import { GrpcMethod } from '@nestjs/microservices';
-import { SiteInfoDTO } from './dtos/site-info.dto';
 import { GrpcListCoursesResponse } from './grpc/course.interface';
 import { CourseContentsList, CourseIdRequest } from './grpc/course-content.interface';
 import { UserCoursesResponse, UserIdRequest } from './grpc/user-courses.interface';
@@ -19,15 +18,6 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
-  }
-
-  @GrpcMethod('MoodleInfoService', 'GetSiteInfo')
-  async getMoodleInfo(): Promise<SiteInfoDTO> {
-    try {
-      return await this.appService.fetchMoodleSiteInfo();
-    } catch (error) {
-      throw new Error('Failed to fetch Moodle site info');
-    }
   }
 
   @GrpcMethod('MoodleInfoService', 'ListAllCourses')
