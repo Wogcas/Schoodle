@@ -1,4 +1,4 @@
-import { TaskDAO } from "../DAOs/TaskDAO";
+import { TaskDAO } from "../DAOs/TaskDAO.js";
 
 class TaskDataSource {
     constructor() {

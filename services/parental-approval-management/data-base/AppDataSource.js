@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { Task } from '../entities/Task.js';
+import { TaskSchema } from '../Entity/Task.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -9,11 +9,19 @@ export const AppDataSource = new DataSource({
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "3306"),
     username: process.env.DB_USERNAME || "root",
-    password: process.env.DB_PASSWORD || "password",
+    password: process.env.DB_PASSWORD || "cinco123",
     database: "parentalApprovalManagementDB",
-    synchronize: true,
+    synchronize: false,
     logging: true,
-    entities: [Task],
+    entities: [TaskSchema],
     subscribers: [],
     migrations: [],
 });
+
+AppDataSource.initialize()
+    .then(() => {
+        console.log("Data Source inicializado correctamente...");
+    })
+    .catch((err) => {
+        console.error("Error al inicializar Data Source:", err);
+    });

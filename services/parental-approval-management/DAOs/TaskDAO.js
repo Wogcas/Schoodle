@@ -1,6 +1,5 @@
-
-import { Task } from '../entities/Task.js';
-import { TaskRepository } from '../repositories/TaskRepository.js';
+import { AppDataSource } from '../data-base/AppDataSource.js';
+import { TaskSchema } from '../Entity/Task.js';
 
 /**
  * Clase de acceso a datos para la entidad Task
@@ -9,16 +8,15 @@ import { TaskRepository } from '../repositories/TaskRepository.js';
  */
 export class TaskDAO {
     constructor() {
-        this.taskRepository = new TaskRepository();
+        this.taskRepository = AppDataSource.getRepository(TaskSchema);
     }
-
     /**
      * Obtiene todas las tareas
      * @returns {Promise<Task[]>} Lista de tareas
      */
     async getAllTasks() {
         try {
-            return await this.taskRepository.findAll();
+            return await this.taskRepository.find();
         } catch (error) {
             console.error('Error al obtener todas las tareas:', error);
             throw new Error('No se pudieron recuperar las tareas');

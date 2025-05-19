@@ -1,19 +1,30 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { EntitySchema } from "typeorm";
 
-
-@Entity('tasks')
-export class Task {
-    @PrimaryGeneratedColumn('uuid')
-    id;
-
-    @Column({ type: 'varchar', length: 255 })
-    nombre;
-
-    @Column({
-        type: 'enum',
-        enum: ['PENDING', 'APPROVED'],
-        default: 'PENDING'
-    })
-    status;
-
+class Task {
+    constructor(name, status) {
+        this.name = name;
+        this.status = status;
+    }
 }
+
+export const TaskSchema = new EntitySchema({
+    name: "Task",
+    tableName: "task",
+    target: Task,
+    columns: {
+        id: {
+            primary: true,
+            type: "int",
+            generated: true
+        },
+        name: {
+            type: "varchar",
+            length: 255
+        },
+        status: {
+            type: "varchar"
+        }
+    }
+});
+
+export default Task;

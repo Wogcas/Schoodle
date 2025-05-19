@@ -92,4 +92,4 @@ export async function consumeRabbitTaskSubmissionsService() {
     }
 }
 
-consumeRabbitTaskSubmissionsService().catch(console.error);
+// consumeRabbitTaskSubmissionsService().catch(console.error);
