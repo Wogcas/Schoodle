@@ -12,42 +12,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const StudentService_1 = __importDefault(require("../services/StudentService"));
-const studentService = new StudentService_1.default();
-class StudentController {
-    static getStudentsByTutor(req, res) {
+const TeacherService_1 = __importDefault(require("../services/TeacherService"));
+const teacherService = new TeacherService_1.default();
+class TeacherController {
+    static getCoursesWithStudents(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { tutorIdNumber } = req.params;
-            if (!tutorIdNumber) {
-                res.status(400).json({ error: 'Tutor ID number is required' });
-                return;
-            }
+            const { teacherIdNumber } = req.params;
             try {
-                const students = yield studentService.getStudentsByTutorIdNumber(tutorIdNumber);
-                res.json(students);
-            }
-            catch (error) {
-                res.status(500).json({
-                    error: 'Error retrieving students',
-                    details: error.message
-                });
-            }
-        });
-    }
-    ;
-    static getCurrentCourses(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const { studentIdNumber } = req.params;
-            try {
-                if (!studentIdNumber) {
-                    res.status(400).json({ error: 'Student ID number is required' });
+                if (!teacherIdNumber) {
+                    res.status(400).json({ error: 'Teacher ID number is required' });
                     return;
                 }
-                const result = yield studentService.getCurrentCourses(studentIdNumber);
-                res.json({
-                    courses: result.courses,
-                    student: result.student
-                });
+                const result = yield teacherService.getCoursesWithStudents(teacherIdNumber);
+                if (result.courses.length === 0) {
+                    res.status(404).json({
+                        message: 'No current courses found for this teacher',
+                        teacher: result.teacher
+                    });
+                    return;
+                }
+                res.json(result);
             }
             catch (error) {
                 const message = error.message;
@@ -56,13 +40,12 @@ class StudentController {
                 }
                 else {
                     res.status(500).json({
-                        error: 'Error retrieving courses',
+                        error: 'Error retrieving teacher courses',
                         details: message
                     });
                 }
             }
         });
     }
-    ;
 }
-exports.default = StudentController;
+exports.default = TeacherController;

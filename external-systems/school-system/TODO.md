@@ -2,9 +2,7 @@
 LISTO// TODO: Obtener estudiantes por determinado tutor por idNumber del tutor
 
 /** Servicio Mensajes */
-// TODO: Obtener maestros de cursos a los que está actualmente inscrito un estudiante por idNumber del estudiante
-
-// TODO: Obtener cursos con maestros a los que está actualmente inscrito un estudiante por idNumber del estudiante
+LISTO// TODO: Obtener cursos con maestros a los que está actualmente inscrito un estudiante por idNumber del estudiante
 
 // TODO: Obtener con estudiantes inscritos y sus papás, cursos que actualmente imparte determinado maestro por idNumber del maestro
 

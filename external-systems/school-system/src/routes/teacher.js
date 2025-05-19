@@ -4,8 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const StudentController_1 = __importDefault(require("../controllers/StudentController"));
+const TeacherController_1 = __importDefault(require("../controllers/TeacherController"));
 const router = express_1.default.Router();
-router.get('/by-tutor/:tutorIdNumber', StudentController_1.default.getStudentsByTutor);
-router.get('/:studentIdNumber/current-courses', StudentController_1.default.getCurrentCourses);
+router.get('/:teacherIdNumber/courses-with-students', TeacherController_1.default.getCoursesWithStudents);
 exports.default = router;

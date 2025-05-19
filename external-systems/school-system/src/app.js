@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const constants_1 = require("./config/constants");
 const system_1 = __importDefault(require("./routes/system"));
 const student_1 = __importDefault(require("./routes/student"));
+const teacher_1 = __importDefault(require("./routes/teacher"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.get('/', (req, res) => {
@@ -14,4 +15,5 @@ app.get('/', (req, res) => {
 });
 app.use('/api/school-system', system_1.default);
 app.use('/api/school-system/student', student_1.default);
+app.use('/api/school-system/teacher', teacher_1.default);
 exports.default = app;

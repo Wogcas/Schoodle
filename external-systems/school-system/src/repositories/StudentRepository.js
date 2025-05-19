@@ -36,5 +36,54 @@ class StudentRepository extends BaseRepository_1.default {
                 .where('UT.idNumber', tutorIdNumber);
         });
     }
+    ;
+    getStudentCurrentCourses(idNumber) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const student = yield (0, knex_1.default)('Users as U')
+                .select({
+                idNumber: 'U.idNumber',
+                name: 'U.name',
+                lastName: 'U.lastName'
+            })
+                .innerJoin('Students as S', 'U.id', 'S.userId')
+                .where('U.idNumber', idNumber)
+                .first();
+            if (!student) {
+                throw new Error('Student not found');
+            }
+            const courses = yield (0, knex_1.default)('Users as U')
+                .select({
+                courseIdNumber: 'C.idnumber',
+                courseName: 'C.name',
+                teacherIdNumber: 'UT.idNumber',
+                teacherName: knex_1.default.raw('CONCAT("Prof. ", UT.name, " ", UT.lastName)'),
+            })
+                .innerJoin('Students as S', 'U.id', 'S.userId')
+                .innerJoin('EnrolledTerms as ET', 'S.userId', 'ET.studentId')
+                .innerJoin('SchoolTerms as ST', 'ET.schoolTermId', 'ST.id')
+                .innerJoin('CourseTaken as CT', 'ET.id', 'CT.enrolledTermId')
+                .innerJoin('Course as C', 'CT.courseId', 'C.id')
+                .innerJoin('Teachers as T', 'C.teacherId', 'T.userId')
+                .innerJoin('Users as UT', 'T.userId', 'UT.id')
+                .where('U.idNumber', idNumber)
+                .andWhere('ST.termStartDate', '<=', knex_1.default.fn.now())
+                .andWhere('ST.termEndDate', '>=', knex_1.default.fn.now())
+                .groupBy(['C.id', 'UT.id']);
+            return {
+                courses: courses.map(course => ({
+                    idNumber: course.courseIdNumber,
+                    name: course.courseName,
+                    teacher: {
+                        idNumber: course.teacherIdNumber,
+                        name: course.teacherName
+                    }
+                })),
+                student: {
+                    idNumber: student.idNumber,
+                    name: `${student.name} ${student.lastName}`
+                }
+            };
+        });
+    }
 }
 exports.default = StudentRepository;

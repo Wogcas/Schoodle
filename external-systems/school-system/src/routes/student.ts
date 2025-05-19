@@ -8,4 +8,9 @@ router.get<{ tutorIdNumber: string }>(
   StudentController.getStudentsByTutor
 );
 
+router.get<{ studentIdNumber: string }>(
+  '/:studentIdNumber/current-courses',
+  StudentController.getCurrentCourses
+);
+
 export default router;
