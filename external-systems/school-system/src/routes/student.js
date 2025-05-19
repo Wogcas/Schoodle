@@ -4,5 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const StudentController_1 = __importDefault(require("../controllers/StudentController"));
 const router = express_1.default.Router();
-//import StudentController from '../controllers/StudentController';
+router.get('/by-tutor/:tutorIdNumber', StudentController_1.default.getStudentsByTutor);
+exports.default = router;
