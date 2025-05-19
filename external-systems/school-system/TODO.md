@@ -4,11 +4,11 @@ LISTO// TODO: Obtener estudiantes por determinado tutor por idNumber del tutor
 /** Servicio Mensajes */
 LISTO// TODO: Obtener cursos con maestros a los que está actualmente inscrito un estudiante por idNumber del estudiante
 
-// TODO: Obtener con estudiantes inscritos y sus papás, cursos que actualmente imparte determinado maestro por idNumber del maestro
+LISTO// TODO: Obtener con estudiantes inscritos y sus papás, cursos que actualmente imparte determinado maestro por idNumber del maestro
 
 /** Servicio sincronización Usuarios */
 
-// TODO: Obtener usuarios por orden de fecha de registro con limite 1
+// TODO: Obtener primer usuario registrado con fecha de registro incluido
 
 /** Servicio sincronizacion calificaciones */
 
