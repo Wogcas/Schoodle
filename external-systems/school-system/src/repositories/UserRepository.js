@@ -26,5 +26,32 @@ class UserRepository extends BaseRepository_1.default {
                 .first();
         });
     }
+    getUsersRegisteredSince(startDate) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return (0, knex_1.default)('Users as U')
+                .select([
+                'U.id',
+                'U.idNumber',
+                'U.name',
+                'U.lastName',
+                'U.email',
+                'U.registeredAt',
+                knex_1.default.raw(`
+        CASE
+          WHEN T.userId IS NOT NULL THEN 'Teacher'
+          WHEN TU.userId IS NOT NULL THEN 'Tutor'
+          ELSE NULL
+        END as role
+      `)
+            ])
+                .leftJoin('Teachers as T', 'U.id', 'T.userId')
+                .leftJoin('Tutors as TU', 'U.id', 'TU.userId')
+                .where('U.registeredAt', '>=', startDate)
+                .andWhere(function () {
+                this.whereNotNull('T.userId').orWhereNotNull('TU.userId');
+            })
+                .orderBy('U.registeredAt', 'asc');
+        });
+    }
 }
 exports.default = UserRepository;

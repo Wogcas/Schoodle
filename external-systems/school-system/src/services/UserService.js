@@ -26,5 +26,16 @@ class UserService {
             }
         });
     }
+    getUsersRegisteredSince(startDate) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const users = yield userRepository.getUsersRegisteredSince(startDate);
+                return users.filter(user => user.role !== null);
+            }
+            catch (error) {
+                throw new Error(`Error fetching users with role: ${error.message}`);
+            }
+        });
+    }
 }
 exports.default = UserService;

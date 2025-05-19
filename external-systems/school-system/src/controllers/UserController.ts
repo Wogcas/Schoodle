@@ -28,5 +28,37 @@ export default class UserController {
         details: (error as Error).message
       });
     }
+  };
+
+  static async getUsersRegisteredSince(req: Request, res: Response): Promise<void> {
+    try {
+      const startDate = new Date(req.query.since as string);
+      
+      if (isNaN(startDate.getTime())) {
+        res.status(400).json({ error: 'Invalid start date format' });
+        return;
+      }
+
+      const users = await userService.getUsersRegisteredSince(startDate);
+      
+      if (users.length === 0) {
+        res.status(404).json({ 
+          message: 'No users found with Tutor or Teacher role after specified date',
+          startDate: startDate.toISOString()
+        });
+        return;
+      }
+
+      res.json(users.map(user => ({
+        ...user,
+        registeredAt: user.registeredAt.toISOString()
+      })));
+      
+    } catch (error) {
+      res.status(500).json({
+        error: 'Error retrieving users',
+        details: (error as Error).message
+      });
+    }
   }
 }

@@ -40,5 +40,32 @@ class UserController {
             }
         });
     }
+    ;
+    static getUsersRegisteredSince(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const startDate = new Date(req.query.since);
+                if (isNaN(startDate.getTime())) {
+                    res.status(400).json({ error: 'Invalid start date format' });
+                    return;
+                }
+                const users = yield userService.getUsersRegisteredSince(startDate);
+                if (users.length === 0) {
+                    res.status(404).json({
+                        message: 'No users found with Tutor or Teacher role after specified date',
+                        startDate: startDate.toISOString()
+                    });
+                    return;
+                }
+                res.json(users.map(user => (Object.assign(Object.assign({}, user), { registeredAt: user.registeredAt.toISOString() }))));
+            }
+            catch (error) {
+                res.status(500).json({
+                    error: 'Error retrieving users',
+                    details: error.message
+                });
+            }
+        });
+    }
 }
 exports.default = UserController;
