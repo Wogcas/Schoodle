@@ -47,7 +47,7 @@ export default function homework() {
     const [filteredArray, setFilteredHomework] = useState(mockHomework);
 
     return (
-        <ScrollView style={[styles.container, { paddingTop: insets.top }]}>
+        <ScrollView style={[styles.container, { paddingTop: 10 + insets.top }]}>
             <Header
                 title="Homework board"
             />
@@ -95,7 +95,9 @@ const styles = StyleSheet.create({
     container: {
         display: "flex",
         flexDirection: "column",
-        backgroundColor: Colors.background
+        backgroundColor: Colors.background,
+        paddingEnd: 20,
+        paddingStart: 20,
     },
 
     emptyContainer: {
