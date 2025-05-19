@@ -4,6 +4,7 @@ import systemRoutes from './routes/system';
 import studentRoutes from './routes/student';
 import teacherRoutes from './routes/teacher';
 import userRoutes from './routes/user';
+import schoolTermRoutes from './routes/schoolTerm';
 
 const app = express();
 
@@ -14,8 +15,9 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/school-system', systemRoutes);
-app.use('/api/school-system/student', studentRoutes );
-app.use('/api/school-system/teacher', teacherRoutes );
-app.use('/api/school-system/user', userRoutes );
+app.use('/api/school-system/students', studentRoutes );
+app.use('/api/school-system/teachers', teacherRoutes );
+app.use('/api/school-system/users', userRoutes );
+app.use('/api/school-system/school-terms', schoolTermRoutes );
 
 export default app;

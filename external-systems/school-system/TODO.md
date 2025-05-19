@@ -10,6 +10,8 @@ LISTO// TODO: Obtener con estudiantes inscritos y sus papás, cursos que actualm
 
 // TODO: Obtener primer usuario registrado con fecha de registro incluido
 
+// TODO: Obtener usuarios con rol, a partir de determinada por fecha de registro
+
 /** Servicio sincronizacion calificaciones */
 
 // TODO: Obtener ultimo periodo escolar
