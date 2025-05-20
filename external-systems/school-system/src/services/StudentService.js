@@ -1,30 +1,42 @@
-const StudentRepository = require('../repositories/StudentRepository');
-const TutorService = require('./TutorService');
-
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const StudentRepository_1 = __importDefault(require("../repositories/StudentRepository"));
 class StudentService {
-    async createStudent(studentData, tutorIds = []) {
-        const student = await StudentRepository.create(studentData);
-        if (tutorIds.length > 0) {
-            await TutorService.assignTutorsToStudent(student.id, tutorIds);
-        }
-        return student;
+    constructor() {
+        this.studentRepository = new StudentRepository_1.default();
     }
-
-    async getStudentDetails(id) {
-        const student = await StudentRepository.findById(id);
-        if (!student) throw new Error('Estudiante no encontrado');
-        
-        const [tutors, enrolledTerms] = await Promise.all([
-            StudentRepository.getTutors(id),
-            StudentRepository.getEnrolledTerms(id)
-        ]);
-
-        return { ...student, tutors, enrolledTerms };
+    getStudentsByTutorIdNumber(tutorIdNumber) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.studentRepository.getStudentsByTutorIdNumber(tutorIdNumber);
+            }
+            catch (error) {
+                console.error('Error fetching students by tutor ID number:', error);
+                throw new Error('Could not fetch students. Please try again later.');
+            }
+        });
     }
-
-    async getStudentCourses(enrolledTermId) {
-        return await StudentRepository.getCourses(enrolledTermId);
+    getCurrentCourses(studentIdNumber) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                return yield this.studentRepository.getStudentCurrentCourses(studentIdNumber);
+            }
+            catch (error) {
+                throw new Error(`Error fetching courses: ${error.message}`);
+            }
+        });
     }
 }
-
-module.exports = new StudentService();
+exports.default = StudentService;

@@ -1,4 +1,3 @@
-// src/db/knex.ts
 import knex from 'knex';
 import dotenv from 'dotenv';
 

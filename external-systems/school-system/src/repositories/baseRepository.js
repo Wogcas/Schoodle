@@ -45,3 +45,4 @@ class BaseRepository {
         });
     }
 }
+exports.default = BaseRepository;
