@@ -9,6 +9,24 @@ import { Repository } from 'typeorm';
 
 const EXCHANGE_NAME = process.env.NOTIFICATIONS_EXCHANGE_NAME!;
 
+export interface ConversationListItemDto {
+    conversationId: string;
+    otherParticipant: {
+        id: string;
+        name: string; 
+        avatar?: string;
+        role?: string;
+    };
+    lastMessage: {
+        id: string;
+        content: string;
+        timestamp: string;
+        senderId: string;
+        read: boolean;
+    } | null; 
+    unreadCount: number;
+}
+
 export default class ChatService {
     private notificationPublisherService: NotificationPublisherService;
     private chatConsumerService: ChatConsumerService;
@@ -92,13 +110,18 @@ export default class ChatService {
             
             try {
                 const notificationPayload = {
-                    ...savedMessage,
+                    id: savedMessage.id,
+                    senderId: savedMessage.senderId,
+                    content: savedMessage.content,
+                    read: savedMessage.read,
+                    createdAt: savedMessage.createdAt.toISOString(),
+                    updatedAt: savedMessage.updatedAt.toISOString(), 
                     receiverId: receiverId, 
                     conversationId: conversation.id
                 };
                 await this.notificationPublisherService.publishMessage(
                     EXCHANGE_NAME,
-                    `chat.message.notification`,
+                    `chat.message.notification.${receiverId}`,
                     notificationPayload
                 );
                 console.log('ChatService: Notificación de chat publicada.');
@@ -190,6 +213,73 @@ export default class ChatService {
             console.warn(`ChatService (markMessageAsRead): Usuario ${userIdMakingRequest} no autorizado para marcar mensaje ${messageId} o es el remitente.`);
             return false;
         }
+    }
+
+    async getConversationsForUser(userId: string): Promise<ConversationListItemDto[]> {
+        if (!contextDB.isInitialized) {
+            throw new Error("ChatService (getConversationsForUser): DataSource no inicializado.");
+        }
+
+        console.log(`ChatService: Buscando conversaciones para el usuario ${userId}`);
+        const conversations = await this.conversationRepository.find({
+            where: [
+                { participantA: userId },
+                { participantB: userId },
+            ],
+            order: { updatedAt: 'DESC' }, 
+        });
+
+        if (!conversations || conversations.length === 0) {
+            return [];
+        }
+
+        const conversationListItems: ConversationListItemDto[] = [];
+
+        for (const conv of conversations) {
+            const otherParticipantId = conv.participantA === userId ? conv.participantB : conv.participantA;
+
+            const otherParticipantName = `Usuario ${otherParticipantId.substring(0, 8)}`;
+            const otherParticipantRole = (otherParticipantId.startsWith("teacher")) ? "Profesor/a" : "Padre/Madre"; 
+
+            const lastMessage = await this.messageRepository.findOne({
+                where: { conversation: { id: conv.id } },
+                order: { createdAt: 'DESC' },
+            });
+
+            const unreadCount = await this.messageRepository.count({
+                where: {
+                    conversation: { id: conv.id },
+                    senderId: otherParticipantId,
+                    read: false,
+                }
+            });
+
+            conversationListItems.push({
+                conversationId: conv.id,
+                otherParticipant: {
+                    id: otherParticipantId,
+                    name: otherParticipantName, // TODO: Reemplazar con nombre real
+                    role: otherParticipantRole, // TODO: Reemplazar con rol real
+                },
+                lastMessage: lastMessage ? {
+                    id: lastMessage.id,
+                    content: lastMessage.content,
+                    timestamp: lastMessage.createdAt.toISOString(),
+                    senderId: lastMessage.senderId,
+                    read: lastMessage.senderId === userId ? true : lastMessage.read,
+                } : null,
+                unreadCount: unreadCount,
+            });
+        }
+        
+        conversationListItems.sort((a, b) => {
+            if (!a.lastMessage) return 1;
+            if (!b.lastMessage) return -1;
+            return new Date(b.lastMessage.timestamp).getTime() - new Date(a.lastMessage.timestamp).getTime();
+        });
+        
+        console.log(`ChatService: Encontradas ${conversationListItems.length} conversaciones para ${userId}`);
+        return conversationListItems;
     }
 
     getWebStompURL(): string {
