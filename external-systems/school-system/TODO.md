@@ -8,15 +8,15 @@ LISTO// TODO: Obtener con estudiantes inscritos y sus papás, cursos que actualm
 
 /** Servicio sincronización Usuarios */
 
-// TODO: Obtener primer usuario registrado con fecha de registro incluido
+LISTO// TODO: Obtener primer usuario registrado con fecha de registro incluido
 
-// TODO: Obtener usuarios con rol, a partir de determinada por fecha de registro
+LISTO// TODO: Obtener usuarios con rol, a partir de determinada por fecha de registro
 
 /** Servicio sincronizacion calificaciones */
 
-// TODO: Obtener ultimo periodo escolar
+LISTO// TODO: Obtener ultimo periodo escolar
 
-// TODO: Subir calificacion de determinado estudiante por idNumber del estudiante y curso por idNumber del curso
+LISTO// TODO: Subir calificacion de determinado estudiante por idNumber del estudiante y curso por idNumber del curso
 
 /** Servicio de alertas maestro */
 
