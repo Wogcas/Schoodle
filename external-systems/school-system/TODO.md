@@ -20,4 +20,4 @@ LISTO// TODO: Subir calificacion de determinado estudiante por idNumber del estu
 
 /** Servicio de alertas maestro */
 
-// TODO: Registrar reporte de publicación tardia de calificaciones con idNumber del maestro, idNumber del estudiante y idNumber del curso
+LISTO// TODO: Registrar reporte de publicación tardia de calificaciones con idNumber del maestro, idNumber del estudiante y idNumber del curso
