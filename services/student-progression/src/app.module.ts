@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { enviroment } from './config/enviroment.config';
+import { MapperService } from './mapper/mapper.service';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { enviroment } from './config/enviroment.config';
     })
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, MapperService],
 })
 export class AppModule {}
