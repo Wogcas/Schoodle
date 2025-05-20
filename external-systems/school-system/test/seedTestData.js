@@ -4,6 +4,9 @@ const knex = require('../src/database/knex').default;
 const generateEmail = (name, lastName) => 
   `${name.toLowerCase()}.${lastName.toLowerCase()}@school.com`;
 
+const randomGrade = (min = 60, max = 100) => 
+  Math.floor(Math.random() * (max - min + 1)) + min;
+
 // Datos base
 const SCHOOL_TERMS = [
   { start: '2023-01-09', end: '2023-06-15' },
