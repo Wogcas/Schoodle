@@ -8,12 +8,15 @@ const RABBITMQ_URL = process.env.RABBITMQ_URL || "amqp://guest:guest@localhost:5
 const RABBITMQ_WEB_STOMP_URL = process.env.RABBITMQ_WEB_STOMP_URL || "ws://localhost:15674/ws";
 
 const EXCHANGE_NAME = 'chat_exchange';
-const GENERAL_CHAT_QUEUE = 'general_chat_queue';
+const GENERAL_CHAT_QUEUE = 'chat_save_message_queue';
+const ROUTING_KEY_MESSAGES = 'chat.message.save';
 
 export class ChatConsumerService {
   private connection: ChannelModel | null = null;
   private channel: Channel | null = null;
   private chatService: ChatService;
+  private isConnecting: boolean = false;
+  private retryTimeout: NodeJS.Timeout | null = null;
 
   constructor(chatService: ChatService) {
       this.chatService = chatService;
@@ -25,18 +28,28 @@ export class ChatConsumerService {
           this.channel = await this.connection.createChannel();
           await this.channel.assertExchange(EXCHANGE_NAME, 'topic', { durable: true });
           await this.channel.assertQueue(GENERAL_CHAT_QUEUE, { durable: true });
-          await this.channel.bindQueue(GENERAL_CHAT_QUEUE, EXCHANGE_NAME, 'chat.*.*');
+          await this.channel.bindQueue(GENERAL_CHAT_QUEUE, EXCHANGE_NAME, ROUTING_KEY_MESSAGES);
 
           console.log('ChatConsumerService conectado a RabbitMQ y escuchando...');
 
-          this.channel.consume(GENERAL_CHAT_QUEUE, (msg) => {
-              if (msg) {
-                  const message = JSON.parse(msg.content.toString());
-                  console.log(`[${new Date(message.timestamp).toLocaleTimeString()}] Recibido mensaje de chat:`, message);
-                  this.chatService.sendMessage(message.from, message.to, message.content);
-                  this.channel?.ack(msg);
-              }
-          });
+          this.channel.consume(GENERAL_CHAT_QUEUE, async (msg) => {
+            if (msg) {
+                try {
+                    const messagePayload = JSON.parse(msg.content.toString());
+                    // El payload debe tener 'from', 'to', 'content'
+                    if (messagePayload && messagePayload.from && messagePayload.to && messagePayload.content) {
+                        await this.chatService.sendMessage(messagePayload.from, messagePayload.to, messagePayload.content);
+                        this.channel?.ack(msg);
+                    } else {
+                        console.warn('ChatConsumerService: Mensaje recibido con formato incorrecto, descartando:', messagePayload);
+                        this.channel?.nack(msg, false, false);
+                    }
+                } catch (parseError) {
+                    console.error('ChatConsumerService: Error al parsear mensaje de RabbitMQ:', parseError, msg.content.toString());
+                    this.channel?.nack(msg, false, false);
+                }
+            }
+        }, { noAck: false });
 
           this.connection.on('error', (err) => console.error('Error en la conexión RabbitMQ (ChatConsumer):', err));
           this.connection.on('close', () => console.log('Conexión RabbitMQ cerrada (ChatConsumer), intentando reconectar...'));
