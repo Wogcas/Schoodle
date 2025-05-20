@@ -1,6 +1,6 @@
-const knex = require('../src/database/knex');
+const knex = require('../src/database/knex').default;
 
-// Helpers para generar datos
+// Helpers
 const generateEmail = (name, lastName) => 
   `${name.toLowerCase()}.${lastName.toLowerCase()}@school.com`;
 
@@ -15,161 +15,174 @@ const SCHOOL_TERMS = [
 ];
 
 const TEACHERS = [
-  { name: 'Juan', lastName: 'Pérez' },
-  { name: 'María', lastName: 'García' },
-  { name: 'Carlos', lastName: 'Rodríguez' }
+  { name: 'Juan', lastName: 'Pérez', idNumber: 'TCH-001' },
+  { name: 'María', lastName: 'García', idNumber: 'TCH-002' },
+  { name: 'Carlos', lastName: 'Rodríguez', idNumber: 'TCH-003' }
 ];
 
 const STUDENTS = Array.from({ length: 50 }, (_, i) => ({
   name: `Estudiante${i + 1}`,
   lastName: `Apellido${i + 1}`,
-  birthDate: `200${Math.floor(i / 20)}-01-01`,
-  email: `estudiante${i + 1}@school.com`,
-  idnumber: `STU${(i + 1).toString().padStart(4, '0')}` // Nuevo campo
+  idNumber: `STU-${(i + 1).toString().padStart(4, '0')}`,
+  birthDate: `200${Math.floor(i / 20)}-01-01`
 }));
 
 const TUTORS = Array.from({ length: 15 }, (_, i) => ({
   name: `Tutor${i + 1}`,
-  lastName: `TutorApellido${i + 1}`,
-  email: `tutor${i + 1}@school.com`,
-  phoneNumber: `555-100${i.toString().padStart(2, '0')}`,
-  idnumber: `TUT${(i + 1).toString().padStart(4, '0')}` // Nuevo campo
+  lastName: `ApellidoT${i + 1}`,
+  idNumber: `TUT-${(i + 1).toString().padStart(4, '0')}`,
+  phoneNumber: `555-${(1000 + i).toString().slice(1)}`
 }));
 
-const COURSES = [ // Nueva estructura de cursos
-  { name: 'Matemáticas Básicas', idnumber: 'MATH-101' },
-  { name: 'Física Fundamental', idnumber: 'PHYS-101' },
-  { name: 'Programación I', idnumber: 'PROG-101' }
+const COURSES = [
+  { name: 'Matemáticas Básicas', idNumber: 'MATH-101' },
+  { name: 'Física Fundamental', idNumber: 'PHYS-101' },
+  { name: 'Programación I', idNumber: 'PROG-101' }
 ];
 
 async function seed() {
   try {
     await knex.transaction(async trx => {
-      console.log('Insertando periodos escolares...');
-      await trx('SchoolTerms').insert(SCHOOL_TERMS.map(t => ({
-        termStartDate: t.start,
-        termEndDate: t.end
+      // 1. Insertar periodos escolares
+      console.log('Insertando periodos...');
+      await trx('SchoolTerms').insert(SCHOOL_TERMS.map(term => ({
+        termStartDate: term.start,
+        termEndDate: term.end
       })));
 
-      console.log('Insertando maestros...');
+      // 2. Insertar usuarios y roles
+      console.log('Creando profesores...');
       const teachers = [];
       for (const teacher of TEACHERS) {
-        const [teacherId] = await trx('Teachers').insert({
-          ...teacher,
+        const [userId] = await trx('Users').insert({
+          idNumber: teacher.idNumber,
+          name: teacher.name,
+          lastName: teacher.lastName,
           email: generateEmail(teacher.name, teacher.lastName),
-          birthDate: '1980-01-01',
-          phoneNumber: '555-0000',
-          idnumber: `TCH${teachers.length + 1}`.padStart(7, '0') // Nuevo campo
+          registeredAt: knex.fn.now()
         });
-        teachers.push({ id: teacherId, ...teacher });
+        
+        await trx('Teachers').insert({
+          userId: userId,
+          phoneNumber: '555-0000'
+        });
+        
+        teachers.push({ userId, ...teacher });
       }
 
-      console.log('Insertando estudiantes...');
+      console.log('Creando estudiantes...');
       const students = [];
       for (const student of STUDENTS) {
-        const [studentId] = await trx('Students').insert(student);
-        students.push({ id: studentId, ...student });
+        const [userId] = await trx('Users').insert({
+          idNumber: student.idNumber,
+          name: student.name,
+          lastName: student.lastName,
+          email: generateEmail(student.name, student.lastName),
+          registeredAt: knex.fn.now()
+        });
+        
+        await trx('Students').insert({ userId });
+        students.push({ userId, ...student });
       }
 
-      console.log('Insertando tutores...');
+      console.log('Creando tutores...');
       const tutors = [];
       for (const tutor of TUTORS) {
-        const [tutorId] = await trx('Tutors').insert(tutor);
-        tutors.push({ id: tutorId, ...tutor });
+        const [userId] = await trx('Users').insert({
+          idNumber: tutor.idNumber,
+          name: tutor.name,
+          lastName: tutor.lastName,
+          email: generateEmail(tutor.name, tutor.lastName),
+          registeredAt: knex.fn.now()
+        });
+        
+        await trx('Tutors').insert({
+          userId: userId,
+          phoneNumber: tutor.phoneNumber
+        });
+        
+        tutors.push({ userId, ...tutor });
       }
 
-      console.log('Asignando tutores a estudiantes...');
+      // 3. Asignar tutores a estudiantes
+      console.log('Asignando tutores...');
       const tutorAssignments = [];
       students.forEach((student, index) => {
         const tutor = tutors[index % tutors.length];
         tutorAssignments.push({
-          tutorId: tutor.id,
-          studentId: student.id
+          tutorId: tutor.userId,
+          studentId: student.userId
         });
       });
       await trx('TutorsStudents').insert(tutorAssignments);
 
+      // 4. Crear cursos
       console.log('Creando cursos...');
       const courses = [];
-      for (const courseData of COURSES) {
+      for (const course of COURSES) {
         const teacher = teachers[Math.floor(Math.random() * teachers.length)];
-        const [courseId] = await trx('Courses').insert({
-          ...courseData,
-          teacherId: teacher.id
+        const [courseId] = await trx('Course').insert({
+          name: course.name,
+          idnumber: course.idNumber,
+          teacherId: teacher.userId
         });
-        courses.push({ id: courseId, ...courseData });
+        courses.push({ courseId, ...course });
       }
 
-      console.log('Inscribiendo estudiantes en periodos...');
+      // 5. Inscribir estudiantes en periodos
+      console.log('Inscribiendo en periodos...');
+      const schoolTerms = await trx('SchoolTerms').select('*');
       const enrollments = [];
-      const terms = await trx('SchoolTerms').select('*');
+      
       for (const student of students) {
-        const term = terms[Math.floor(Math.random() * terms.length)];
+        const term = schoolTerms[Math.floor(Math.random() * schoolTerms.length)];
         const [enrollmentId] = await trx('EnrolledTerms').insert({
-          studentId: student.id,
+          studentId: student.userId,
           schoolTermId: term.id,
-          gradeTaken: `${Math.floor(Math.random() * 3) + 1}ro`
         });
-        enrollments.push({ id: enrollmentId, studentId: student.id, schoolTermId: term.id });
+        enrollments.push({ enrollmentId, studentId: student.userId });
       }
 
-      console.log('Inscribiendo estudiantes en cursos...');
+      // 6. Inscribir en cursos
+      console.log('Registrando cursos tomados...');
       const courseTakens = [];
       for (const enrollment of enrollments) {
         const course = courses[Math.floor(Math.random() * courses.length)];
         const [courseTakenId] = await trx('CourseTaken').insert({
-          enrolledTermId: enrollment.id,
-          courseId: course.id,
-          score: randomGrade() // Usamos score directamente
+          enrolledTermId: enrollment.enrollmentId,
+          courseId: course.courseId,
+          score: randomGrade()
         });
-        courseTakens.push({ 
-          id: courseTakenId, 
-          enrolledTermId: enrollment.id, 
-          courseId: course.id 
-        });
+        courseTakens.push({ courseTakenId, enrollmentId: enrollment.enrollmentId });
       }
 
-      console.log('Actualizando promedios de periodos...');
-      for (const term of terms) {
-        const enrollments = await trx('EnrolledTerms')
-          .where('schoolTermId', term.id);
-        
-        for (const enrollment of enrollments) {
-          const courseTakens = await trx('CourseTaken')
-            .where('enrolledTermId', enrollment.id);
-          
-          const average = courseTakens.reduce((acc, ct) => acc + ct.score, 0) / courseTakens.length;
-          await trx('EnrolledTerms')
-            .where('id', enrollment.id)
-            .update({ gradeScore: average.toFixed(2) });
-        }
-      }
-
-      console.log('Generando reportes de violaciones...');
+      // 7. Generar reportes de violaciones
+      console.log('Generando violaciones...');
       const violations = [];
       for (let i = 0; i < 10; i++) {
         const teacher = teachers[Math.floor(Math.random() * teachers.length)];
         const [violationId] = await trx('GradeSubmissionViolations').insert({
-          teacherId: teacher.id,
-          violationDate: '2023-01-01'
+          teacherId: teacher.userId,
+          violationDate: knex.fn.now()
         });
-        violations.push({ id: violationId });
+        violations.push({ violationId });
       }
 
-      console.log('Vinculando violaciones con cursos...');
+      // 8. Vincular violaciones con cursos
+      console.log('Vinculando violaciones...');
       for (const violation of violations) {
         const courseTaken = courseTakens[Math.floor(Math.random() * courseTakens.length)];
         await trx('SubmissionViolations').insert({
-          GradeSubmissionViolationId: violation.id,
-          CourseTakenId: courseTaken.id
+          GradeSubmissionViolationId: violation.violationId,
+          CourseTakenId: courseTaken.courseTakenId
         });
       }
     });
 
-    console.log('✅ Todos los datos de prueba insertados exitosamente!');
+    console.log('✅ Datos de prueba insertados correctamente!');
     process.exit(0);
   } catch (error) {
-    console.error('❌ Error insertando datos:', error);
+    console.error('❌ Error:', error);
     process.exit(1);
   }
 }

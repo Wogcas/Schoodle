@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
+import { MoodleInfoService } from './services/moodle-info.service';
+import { ParentalApprovalService } from './services/parental-approval.service';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -28,6 +30,6 @@ import { join } from 'path';
     ])
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [MoodleInfoService, ParentalApprovalService, AppService],
 })
 export class AppModule {}
