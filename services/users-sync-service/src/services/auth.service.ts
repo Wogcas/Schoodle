@@ -12,7 +12,7 @@ interface AuthUser {
 
 export const registerAuthUser = async (user: AuthUser): Promise<void> => {
   try {
-    await axios.post(`${config.AUTH_SERVICE_URL}/api/auth-service/users/register`, user);
+    await axios.post(`${config.AUTH_SERVICE_URL}/auth/sync/user`, user);
   } catch (error: any) {
     if (error?.code === 'ECONNREFUSED' || error?.code === 'ENOTFOUND') {
       throw new Error('AUTH_SERVICE_CONNECTION_ERROR');
