@@ -32,10 +32,15 @@ export default class UserController {
 
   static async getUsersRegisteredSince(req: Request, res: Response): Promise<void> {
     try {
-      const startDate = new Date(req.query.since as string);
+      const startDateParam = req.query.since as string;
+      const startDate = new Date(startDateParam);
       
       if (isNaN(startDate.getTime())) {
-        res.status(400).json({ error: 'Invalid start date format' });
+        res.status(400).json({ 
+          error: 'Formato de fecha/hora inválido. Use ISO8601 (YYYY-MM-DD o YYYY-MM-DDTHH:MM:SS)',
+          example1: '2024-01-01',
+          example2: '2024-01-01T14:30:00'
+        });
         return;
       }
 
