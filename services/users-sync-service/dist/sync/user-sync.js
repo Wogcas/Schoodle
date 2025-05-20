@@ -52,6 +52,9 @@ const generatePassword = (lastName) => {
 };
 const syncUsers = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (!config_1.default.JWT_SECRET) {
+            throw new Error('Falta JWT_SECRET en la configuración');
+        }
         let sinceDate = (0, config_1.getLastSyncDate)();
         if (!sinceDate) {
             const oldestUser = yield (0, school_service_1.getOldestRegisteredUser)();
@@ -60,21 +63,23 @@ const syncUsers = () => __awaiter(void 0, void 0, void 0, function* () {
         const users = yield (0, school_service_1.getUsersRegisteredSince)(sinceDate);
         const now = new Date();
         let authServiceAvailable = true;
+        let allUsersSynced = true;
         if (users.length > 0) {
             for (const user of users) {
                 try {
                     const authUser = {
                         idNumber: user.idNumber,
-                        name: user.name,
+                        firstName: user.name, // Cambiado de name a firstName
                         lastName: user.lastName,
                         email: user.email,
                         password: generatePassword(user.lastName),
-                        role: user.role || 'Student'
+                        role: user.role || 'teacher' // Valor por defecto en minúscula
                     };
                     yield (0, auth_service_1.registerAuthUser)(authUser);
                     console.log(`User ${user.email} synchronized successfully`);
                 }
                 catch (error) {
+                    allUsersSynced = false; // Marcamos que hubo un error
                     if ((error === null || error === void 0 ? void 0 : error.message) === 'AUTH_SERVICE_CONNECTION_ERROR') {
                         authServiceAvailable = false;
                         console.error('Error de conexión con el servicio de autenticación');
@@ -85,13 +90,13 @@ const syncUsers = () => __awaiter(void 0, void 0, void 0, function* () {
                 }
             }
         }
-        // Solo actualiza si el servicio de autenticación estuvo disponible
-        if (authServiceAvailable) {
+        // Actualizar solo si no hubo errores
+        if (authServiceAvailable && allUsersSynced) {
             (0, config_1.updateLastSyncDate)(now);
             console.log(`Sync completed at ${now.toISOString()}`);
         }
         else {
-            console.log('No se actualiza la fecha de última sincronización por falla en autenticación');
+            console.log('No se actualiza la fecha por errores durante la sincronización');
         }
     }
     catch (error) {

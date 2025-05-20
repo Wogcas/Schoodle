@@ -10,6 +10,9 @@ const generatePassword = (lastName: string): string => {
 
 const syncUsers = async () => {
   try {
+    if (!config.JWT_SECRET) {
+      throw new Error('Falta JWT_SECRET en la configuración');
+    }
     let sinceDate = getLastSyncDate();
     
     if (!sinceDate) {
@@ -20,22 +23,25 @@ const syncUsers = async () => {
     const users = await getUsersRegisteredSince(sinceDate);
     const now = new Date();
     let authServiceAvailable = true;
+    let allUsersSynced = true;
 
     if (users.length > 0) {
       for (const user of users) {
         try {
           const authUser = {
             idNumber: user.idNumber,
-            name: user.name,
+            firstName: user.name, // Cambiado de name a firstName
             lastName: user.lastName,
             email: user.email,
             password: generatePassword(user.lastName),
-            role: user.role || 'Student'
+            role: user.role || 'teacher' // Valor por defecto en minúscula
           };
           
           await registerAuthUser(authUser);
           console.log(`User ${user.email} synchronized successfully`);
         } catch (error: any) {
+          allUsersSynced = false; // Marcamos que hubo un error
+          
           if (error?.message === 'AUTH_SERVICE_CONNECTION_ERROR') {
             authServiceAvailable = false;
             console.error('Error de conexión con el servicio de autenticación');
@@ -46,12 +52,12 @@ const syncUsers = async () => {
       }
     }
 
-    // Solo actualiza si el servicio de autenticación estuvo disponible
-    if (authServiceAvailable) {
+    // Actualizar solo si no hubo errores
+    if (authServiceAvailable && allUsersSynced) {
       updateLastSyncDate(now);
       console.log(`Sync completed at ${now.toISOString()}`);
     } else {
-      console.log('No se actualiza la fecha de última sincronización por falla en autenticación');
+      console.log('No se actualiza la fecha por errores durante la sincronización');
     }
   } catch (error: any) {
     if (error?.message === 'SCHOOL_SYSTEM_CONNECTION_ERROR') {
