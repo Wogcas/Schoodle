@@ -1,6 +1,6 @@
 import knex from '../database/knex';
 
-class BaseRepository {
+export default class BaseRepository {
     constructor(private tableName: string) {}
     
     async findAll() {

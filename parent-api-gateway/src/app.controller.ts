@@ -1,32 +1,66 @@
-import { Controller, Get, Inject, OnModuleInit } from '@nestjs/common';
-import { AppService } from './app.service';
-import { ClientGrpc } from '@nestjs/microservices';
+import { Controller, Get, Param, UseInterceptors } from "@nestjs/common";
+import { MoodleInfoService } from "./services/moodle-info.service";
+import { AppService } from "./app.service";
 
 @Controller()
-export class AppController implements OnModuleInit {
-  private moodleInfoService;
-  private parentalApprovalService;
-  constructor(private readonly appService: AppService,
-    @Inject('STUDENT_PROGRESS_SERVICE') private client: ClientGrpc,
-    @Inject('PARENTAL_APPROVAL_SERVICE') private client2: ClientGrpc,
-  ) {}
-  onModuleInit(){
-    this.moodleInfoService = this.client.getService('MoodleInfoService');
-    this.parentalApprovalService = this.client2.getService('ParentalApprovalManagementGrpcService');
-  }
+export class AppController {
+
+  constructor(
+    private readonly appService: AppService,
+    private readonly moodleInfoService: MoodleInfoService
+  ) { }
 
   @Get()
   getHello(): string {
     return this.appService.getHello();
   }
 
-  @Get('moodle')
-  async getMoodleInfo() {
-    return await this.moodleInfoService.GetSiteInfo({});
+  @Get()
+  getMoodleInfo(): string {
+    return this.moodleInfoService.getHello();
   }
-  
-  @Get('parentalapprovalmanagement')
-  async getSiteInfoTestParentalApproval() {
-    return await this.parentalApprovalService.GetSiteInfo({});
+
+  @Get('courses')
+  async getCourses() {
+    return await this.moodleInfoService.listAllCourses();
   }
+
+  @Get('course/:id')
+  async getCourseInfo(@Param('id') id: number) {
+    return await this.moodleInfoService.getCourseContents(id);
+  }
+
+  @Get('student/:id/courses')
+  async getStudentCourses(@Param('id') id: number) {
+    return await this.moodleInfoService.getStudentCourses(id);
+  }
+
+  @Get('course/:id/students')
+  async getCourseStudents(@Param('id') id: number) {
+    return await this.moodleInfoService.getCourseStudents(id);
+  }
+
+  @Get('course/:id/assignments')
+  async getCourseAssignments(@Param('id') id: number) {
+    return await this.moodleInfoService.getCourseAssignments(id);
+  }
+
+  @Get('course/:id/assignments/between/:start/:end')
+  async getAssignmentsInBetween(
+    @Param('id') id: number,
+    @Param('start') start: string,
+    @Param('end') end: string
+  ) {
+    return await this.moodleInfoService.getAssignmentsInBetween(id, start, end);
+  }
+
+  @Get('student/:id/course/:courseid/grades/:type')
+  async getStudentGradesByType(
+    @Param('id') id: number,
+    @Param('courseid') courseid: number,
+    @Param('type') type: string
+  ){
+    return await this.moodleInfoService.getUserGradesByType(id, courseid, type);
+  }
+
 }
