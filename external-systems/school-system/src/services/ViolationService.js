@@ -12,31 +12,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const StudentRepository_1 = __importDefault(require("../repositories/StudentRepository"));
-class StudentService {
-    constructor() {
-        this.studentRepository = new StudentRepository_1.default();
-    }
-    getStudentsByTutorIdNumber(tutorIdNumber) {
+const ViolationRepository_1 = __importDefault(require("../repositories/ViolationRepository"));
+const violationRepository = new ViolationRepository_1.default();
+class ViolationService {
+    reportLateSubmission(teacherEmail, courseIdNumber, studentEmails) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.studentRepository.getStudentsByTutorIdNumber(tutorIdNumber);
+                // Validación básica
+                if (!teacherEmail || !courseIdNumber || !(studentEmails === null || studentEmails === void 0 ? void 0 : studentEmails.length)) {
+                    throw new Error('Datos incompletos');
+                }
+                return yield violationRepository.createSubmissionViolations(teacherEmail, courseIdNumber, studentEmails);
             }
             catch (error) {
-                console.error('Error fetching students by tutor ID number:', error);
-                throw new Error('Could not fetch students. Please try again later.');
-            }
-        });
-    }
-    getCurrentCourses(studentIdNumber) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this.studentRepository.getStudentCurrentCourses(studentIdNumber);
-            }
-            catch (error) {
-                throw new Error(`Error fetching courses: ${error.message}`);
+                throw new Error(`Error al registrar violaciones: ${error.message}`);
             }
         });
     }
 }
-exports.default = StudentService;
+exports.default = ViolationService;

@@ -12,31 +12,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const StudentRepository_1 = __importDefault(require("../repositories/StudentRepository"));
-class StudentService {
-    constructor() {
-        this.studentRepository = new StudentRepository_1.default();
-    }
-    getStudentsByTutorIdNumber(tutorIdNumber) {
+const UserRepository_1 = __importDefault(require("../repositories/UserRepository"));
+const userRepository = new UserRepository_1.default();
+class UserService {
+    getFirstRegisteredUser() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.studentRepository.getStudentsByTutorIdNumber(tutorIdNumber);
+                const user = yield userRepository.getFirstRegisteredUser();
+                return user || null;
             }
             catch (error) {
-                console.error('Error fetching students by tutor ID number:', error);
-                throw new Error('Could not fetch students. Please try again later.');
+                throw new Error(`Error fetching first user: ${error.message}`);
             }
         });
     }
-    getCurrentCourses(studentIdNumber) {
+    getUsersRegisteredSince(startDate) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.studentRepository.getStudentCurrentCourses(studentIdNumber);
+                const users = yield userRepository.getUsersRegisteredSince(startDate);
+                return users.filter(user => user.role !== null);
             }
             catch (error) {
-                throw new Error(`Error fetching courses: ${error.message}`);
+                throw new Error(`Error fetching users with role: ${error.message}`);
             }
         });
     }
 }
-exports.default = StudentService;
+exports.default = UserService;

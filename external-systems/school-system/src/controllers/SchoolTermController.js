@@ -12,31 +12,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const StudentRepository_1 = __importDefault(require("../repositories/StudentRepository"));
-class StudentService {
-    constructor() {
-        this.studentRepository = new StudentRepository_1.default();
-    }
-    getStudentsByTutorIdNumber(tutorIdNumber) {
+const SchoolTermService_1 = __importDefault(require("../services/SchoolTermService"));
+const termService = new SchoolTermService_1.default();
+class SchoolTermController {
+    static getLatestTerm(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                return yield this.studentRepository.getStudentsByTutorIdNumber(tutorIdNumber);
+                const term = yield termService.getLatestTerm();
+                if (!term) {
+                    res.status(404).json({
+                        message: 'No se encontraron períodos escolares registrados'
+                    });
+                    return;
+                }
+                res.json({
+                    id: term.id,
+                    termStartDate: term.termStartDate.toISOString().split('T')[0],
+                    termEndDate: term.termEndDate.toISOString().split('T')[0]
+                });
             }
             catch (error) {
-                console.error('Error fetching students by tutor ID number:', error);
-                throw new Error('Could not fetch students. Please try again later.');
-            }
-        });
-    }
-    getCurrentCourses(studentIdNumber) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this.studentRepository.getStudentCurrentCourses(studentIdNumber);
-            }
-            catch (error) {
-                throw new Error(`Error fetching courses: ${error.message}`);
+                res.status(500).json({
+                    error: 'Error al obtener el período escolar',
+                    details: error.message
+                });
             }
         });
     }
 }
-exports.default = StudentService;
+exports.default = SchoolTermController;

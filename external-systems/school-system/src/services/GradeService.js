@@ -12,31 +12,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const StudentRepository_1 = __importDefault(require("../repositories/StudentRepository"));
-class StudentService {
-    constructor() {
-        this.studentRepository = new StudentRepository_1.default();
-    }
-    getStudentsByTutorIdNumber(tutorIdNumber) {
+const GradeRepository_1 = __importDefault(require("../repositories/GradeRepository"));
+const gradeRepository = new GradeRepository_1.default();
+class GradeService {
+    submitGrade(studentEmail, courseIdNumber, grade) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (grade < 0 || grade > 100) {
+                throw new Error('La calificación debe estar entre 0 y 100');
+            }
             try {
-                return yield this.studentRepository.getStudentsByTutorIdNumber(tutorIdNumber);
+                yield gradeRepository.submitGradeTransaction(studentEmail, courseIdNumber, grade);
+                return { success: true };
             }
             catch (error) {
-                console.error('Error fetching students by tutor ID number:', error);
-                throw new Error('Could not fetch students. Please try again later.');
-            }
-        });
-    }
-    getCurrentCourses(studentIdNumber) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                return yield this.studentRepository.getStudentCurrentCourses(studentIdNumber);
-            }
-            catch (error) {
-                throw new Error(`Error fetching courses: ${error.message}`);
+                throw new Error(`Error al registrar calificación: ${error.message}`);
             }
         });
     }
 }
-exports.default = StudentService;
+exports.default = GradeService;
