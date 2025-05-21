@@ -4,8 +4,12 @@ services:
   app:
     build: .
     ports:
-      - "3004:3004"
+      - "3443:3443"  # HTTPS
+      - "3004:3004"  # HTTP (para redirección)
     environment:
+      - HTTPS_PORT=3443
+      - SSL_KEY_PATH=/app/ssl/server.key
+      - SSL_CERT_PATH=/app/ssl/server.crt
       - NODE_ENV=development
       - DB_HOST=db
       - DB_PORT=3306
@@ -18,8 +22,9 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - .:/app
+      - ./ssl:/app/ssl
+      - /app/node_modules
     restart: unless-stopped
 
   db:

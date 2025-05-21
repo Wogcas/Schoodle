@@ -12,10 +12,17 @@ const user_1 = __importDefault(require("./routes/user"));
 const schoolTerm_1 = __importDefault(require("./routes/schoolTerm"));
 const grade_1 = __importDefault(require("./routes/grade"));
 const violation_1 = __importDefault(require("./routes/violation"));
+const course_1 = __importDefault(require("./routes/course"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+// Ruta principal con tipos explícitos
 app.get('/', (req, res) => {
-    res.send(`Welcome to the School System API! call http://${constants_1.SERVER_HOST}:${constants_1.SERVER_PORT}/api/school-system/info to get system information.`);
+    res.send(`
+    <h1>School System API</h1>
+    <p>Welcome to the School System API! call <a href="https://${constants_1.SERVER_HOST}:${constants_1.HTTPS_PORT}/api/school-system/info">
+      https://${constants_1.SERVER_HOST}:${constants_1.HTTPS_PORT}/api/school-system/info to get system information.
+    </a></p>
+  `);
 });
 app.use('/api/school-system', system_1.default);
 app.use('/api/school-system/students', student_1.default);
@@ -24,4 +31,5 @@ app.use('/api/school-system/users', user_1.default);
 app.use('/api/school-system/school-terms', schoolTerm_1.default);
 app.use('/api/school-system/grades', grade_1.default);
 app.use('/api/school-system/violations', violation_1.default);
+app.use('/api/school-system/courses', course_1.default);
 exports.default = app;
