@@ -26,5 +26,16 @@ class SchoolTermService {
             }
         });
     }
+    getTermById(termId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const term = yield schoolTermRepository.getSchoolTermById(termId);
+                return term || null;
+            }
+            catch (error) {
+                throw new Error(`Error fetching school term by ID: ${error.message}`);
+            }
+        });
+    }
 }
 exports.default = SchoolTermService;

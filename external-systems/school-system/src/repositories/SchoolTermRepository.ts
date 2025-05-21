@@ -12,4 +12,11 @@ export default class SchoolTermRepository extends BaseRepository {
             .orderBy('termStartDate', 'desc')
             .first();
     }
+
+    async getSchoolTermById(termId: number) {
+        return knex('SchoolTerms')
+            .select('*')
+            .where('id', termId)
+            .first();
+    }
 }

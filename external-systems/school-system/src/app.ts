@@ -7,6 +7,7 @@ import userRoutes from './routes/user';
 import schoolTermRoutes from './routes/schoolTerm';
 import gradeRoutes from './routes/grade';
 import violationRoutes from './routes/violation';
+import courseRoutes from './routes/course';
 
 const app = express();
 
@@ -23,5 +24,6 @@ app.use('/api/school-system/users', userRoutes );
 app.use('/api/school-system/school-terms', schoolTermRoutes );
 app.use('/api/school-system/grades', gradeRoutes);
 app.use('/api/school-system/violations', violationRoutes);
+app.use('/api/school-system/courses', courseRoutes);
 
 export default app;
