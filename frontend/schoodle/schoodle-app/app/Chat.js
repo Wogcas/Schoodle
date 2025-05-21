@@ -1,84 +1,136 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { View, StyleSheet, TouchableOpacity, Text, ScrollView } from "react-native"
-import { useRouter } from "expo-router"
-import { Colors } from "../constants/Colors"
-import ChatListItem from "../components/ChatListItem"
-import SearchBar from "../components/SearchBar"
+import React, { useState, useEffect, useCallback } from "react";
+import { View, StyleSheet, TouchableOpacity, Text, ScrollView, ActivityIndicator, Platform, RefreshControl } from "react-native";
+import { useRouter } from "expo-router";
+import { Colors } from "../constants/Colors";
+import ChatListItem from "../components/ChatListItem";
+import SearchBar from "../components/SearchBar"; 
+import * as apiService from '../services/apiServiceMensajes';
 
-/**
- * @component ChatScreen
- * @description Pantalla principal de chat que muestra la lista de conversaciones
- * @returns {JSX.Element} Componente de pantalla de chat
- */
-export default function ChatScreen() {
-    const router = useRouter()
+// --- SIMULACIÓN DE AUTENTICACIÓN ---
+const MOCK_CURRENT_USER_ID = "parent-123";
+const MOCK_CURRENT_USER_TYPE = "parent";
 
-    // Datos de ejemplo para las conversaciones
-    const conversations = [
-        {
-            id: "1",
-            title: "Math",
-            subtitle: "Carla Lopez",
-            lastMessage: "Hello, teacher. I wanted to ask...",
-            time: "9:30",
-            status: "seen",
-            avatar: require("../assets/images/women-teacher-avatar.png"),
-        },
-        {
-            id: "2",
-            title: "Homeroom teacher",
-            subtitle: "Silvia Sánchez",
-            lastMessage: "I wanted to update you on your...",
-            time: "9:30",
-            status: "pending",
-            avatar: require("../assets/images/women-teacher-avatar.png"),
-        },
-        {
-            id: "3",
-            title: "English teacher",
-            subtitle: "Simon Tyson",
-            lastMessage: "I hope you're doing well. I...",
-            time: "9:30",
-            status: "sent",
-            avatar: require("../assets/images/men-teacher-avatar.png"),
-        },
-    ]
 
-    const [filteredArray, setFilteredArray] = useState(conversations);
+export default function ChatListScreen() {
+    const router = useRouter();
+    const [rawConversations, setRawConversations] = useState([]);
+    const [filteredConversations, setFilteredConversations] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const fetchConversations = useCallback(async () => {
+        setError(null);
+        try {
+            console.log(`ChatListScreen: Fetching conversations for user: ${MOCK_CURRENT_USER_ID}`);
+            const data = await apiService.getConversationsForUser(MOCK_CURRENT_USER_ID);
+            console.log(`ChatListScreen: Received ${data.length} conversations from API.`);
+            setRawConversations(data || []);
+            setFilteredConversations(data || []);
+        } catch (err) {
+            console.error("ChatListScreen: Error fetching conversations:", err);
+            setError("No se pudieron cargar los chats. Intenta de nuevo.");
+        } finally {
+            setIsLoading(false);
+            setRefreshing(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        setIsLoading(true);
+        fetchConversations();
+    }, [fetchConversations]);
+
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchConversations();
+    }, [fetchConversations]);
+
+    const handleSearchChange = (searchText) => {
+        if (!searchText) {
+            setFilteredConversations(rawConversations);
+            return;
+        }
+        const lowercasedFilter = searchText.toLowerCase();
+        const filteredData = rawConversations.filter(conv => {
+            const nameMatch = conv.otherParticipant?.name?.toLowerCase().includes(lowercasedFilter);
+            const roleMatch = conv.otherParticipant?.role?.toLowerCase().includes(lowercasedFilter);
+            const messageMatch = conv.lastMessage?.content?.toLowerCase().includes(lowercasedFilter);
+            return nameMatch || roleMatch || messageMatch;
+        });
+        setFilteredConversations(filteredData);
+    };
+    
+    if (isLoading && rawConversations.length === 0) { 
+        return (
+            <View style={[styles.container, styles.centered]}>
+                <ActivityIndicator size="large" color={Colors.primary} />
+                <Text style={{marginTop: 10, color: Colors.textSecondary}}>Cargando tus chats...</Text>
+            </View>
+        );
+    }
+
+    if (error && rawConversations.length === 0) {
+        return (
+            <View style={[styles.container, styles.centered]}>
+                <Text style={styles.errorText}>{error}</Text>
+                <TouchableOpacity onPress={fetchConversations} style={styles.retryButton}>
+                    <Text style={styles.retryButtonText}>Reintentar</Text>
+                </TouchableOpacity>
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <Text style={styles.title}>Chat</Text>
-                <TouchableOpacity style={styles.newChatButton}>
-                    <Text style={styles.newChatText}>New chat +</Text>
+                <TouchableOpacity style={styles.newChatButton} onPress={() => router.push('/selectTeacherToChat')}>
+                    {/* TODO: Implementar pantalla para seleccionar profesor e iniciar un nuevo chat */}
+                    <Text style={styles.newChatText}>Nuevo +</Text>
                 </TouchableOpacity>
             </View>
 
             <SearchBar
-                arrayToFilter={conversations}
-                onFilterChange={setFilteredArray}
+                onSearchChange={handleSearchChange}
+                placeholder="Buscar por profesor o mensaje..."
             />
 
-            <ScrollView style={styles.conversationsList}>
-                {filteredArray.map((conversation) => (
-                    <ChatListItem
-                        key={conversation.id}
-                        id={conversation.id}
-                        title={conversation.title}
-                        subtitle={conversation.subtitle}
-                        lastMessage={conversation.lastMessage}
-                        time={conversation.time}
-                        status={conversation.status}
-                        avatar={conversation.avatar}
-                    />
-                ))}
-            </ScrollView>
+            {filteredConversations.length === 0 && !isLoading ? (
+                <ScrollView
+                    contentContainerStyle={[styles.container, styles.centered, {paddingBottom: 100}]}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]}/>}
+                >
+                    <Text style={styles.emptyText}>No tienes conversaciones aún.</Text>
+                    <Text style={styles.emptySubText}>Presiona "Nuevo +" para iniciar un chat.</Text>
+                </ScrollView>
+            ) : (
+                <ScrollView 
+                    style={styles.conversationsList}
+                    refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]}/>}
+                >
+                    {filteredConversations.map((conv) => (
+                        <ChatListItem
+                            key={conv.conversationId}
+                            currentUserId={MOCK_CURRENT_USER_ID} 
+                            currentUserType={MOCK_CURRENT_USER_TYPE}
+                            otherUserId={conv.otherParticipant.id}
+                            otherUserName={conv.otherParticipant.name}
+                            chatContextTitle={conv.otherParticipant.role || "Chat"}
+                            lastMessageContent={conv.lastMessage?.content || "..."}
+                            lastMessageTimestamp={conv.lastMessage?.timestamp}
+                            unreadCount={conv.unreadCount || 0}
+                            avatarUri={require("../assets/images/men-teacher-avatar.png")} 
+                        />
+                    ))}
+                </ScrollView>
+            )}
         </View>
-    )
+    );
 }
+
 
 const styles = StyleSheet.create({
     container: {
@@ -89,28 +141,62 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: 15,
-    },
-    backButton: {
-        padding: 5,
+        paddingHorizontal: 15,
+        paddingTop: Platform.OS === 'ios' ? 50 : 20,
+        paddingBottom: 10,
+        backgroundColor: Colors.white,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: Colors.lightGray,
     },
     title: {
-        fontSize: 28,
+        fontSize: 24,
         fontWeight: "bold",
         color: Colors.text,
     },
     newChatButton: {
-        padding: 5,
+        paddingVertical: 6,
+        paddingHorizontal: 10,
     },
     newChatText: {
         color: Colors.primary,
         fontSize: 16,
-    },
-    searchBar: {
-        marginHorizontal: 15,
-        marginBottom: 15,
+        fontWeight: '500',
     },
     conversationsList: {
         flex: 1,
     },
-})
+    centered: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    errorText: {
+        color: Colors.notificationRed,
+        fontSize: 16,
+        textAlign: 'center',
+        marginBottom: 15,
+    },
+    retryButton: {
+        backgroundColor: Colors.primary,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        borderRadius: 8,
+    },
+    retryButtonText: {
+        color: Colors.white,
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    emptyText: {
+        fontSize: 18,
+        color: Colors.secondary,
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    emptySubText: {
+        fontSize: 14,
+        color: Colors.textTertiary,
+        textAlign: 'center',
+    }
+});
