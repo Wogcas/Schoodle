@@ -1,8 +1,12 @@
 
 import axios from 'axios';
 import TaskDataSource from './taskDataSource.js';
+import { TaskDAO } from '../DAOs/TaskDAO.js';
 
-const MOODLE_API = 'http://localhost:8080/api/moodle/rest';
+const MOODLE_API = 'https://localhost:8080/api/moodle/rest';
+
+
+const taskDAO = new TaskDAO();
 
 class ExternalTaskDataSource extends TaskDataSource {
 
@@ -27,9 +31,12 @@ class ExternalTaskDataSource extends TaskDataSource {
         }
     }
 
-    async getTaskDetails(taskId) {
+    async getTaskDetails(id, task) {
         try {
-            const response = await axios.get(`${MOODLE_API}/tasks/${taskId}`);
+            const response = await taskDAO.updateTask(id, task);
+            if (!response) {
+                throw new Error(`Task with ID ${id} not found`);
+            }
             return response.data;
         } catch (error) {
             console.error('Error fetching task details from API:', error);

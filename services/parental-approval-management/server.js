@@ -5,11 +5,9 @@ import protoLoader from '@grpc/proto-loader';
 import parentalApprovalManagementRouter from './routers/parentalApprovalManagementRouter.js';
 import path from 'path';
 import { fileURLToPath } from 'url'; // Importa 'fileURLToPath'
-import TaskDataSource from './services/taskDataSource.js';
 import ParentalApprovalManagementGrpcService from './services/parentalApprovalManagementGrpcService.js';
 import ExternalTaskDataSource from './services/parentalApprovalManagementExpressService.js';
 import { consumeRabbitTaskSubmissionsService, publishTaskSubmissionEvent } from './services/consumeRabbitTaskSubmissionService.js';
-import { AppDataSource } from './data-base/AppDataSource.js';
 const __filename = fileURLToPath(import.meta.url); // Obtén la ruta del archivo actual
 const __dirname = path.dirname(__filename);
 
@@ -67,5 +65,5 @@ grpcServer.bindAsync(
 );
 
 // --- Iniciar el consumidor de RabbitMQ ---
-//consumeRabbitTaskSubmissionsService().catch(err => console.error("Error al iniciar el consumidor de RabbitMQ:", err));
-//publishTaskSubmissionEvent({ taskId: 1, status: 'submitted' }).catch(err => console.error("Error al publicar el evento de RabbitMQ:", err));
+consumeRabbitTaskSubmissionsService().catch(err => console.error("Error al iniciar el consumidor de RabbitMQ:", err));
+publishTaskSubmissionEvent({ taskId: 1, status: 'submitted' }).catch(err => console.error("Error al publicar el evento de RabbitMQ:", err));

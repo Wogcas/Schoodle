@@ -1,5 +1,6 @@
 import amqplib from "amqplib";
 import rabbitmqConfig from "../utils/rabbitmqConfig.js";
+import { handleTaskEvent } from "../data-base/HandleTaskEvent.js";
 
 const TASK_SUBMISSION_QUEUE_NAME = 'taskSubmissions'; // Nombre para cola
 const TASK_SUBMISSION_EXCHANGE_NAME = 'tasksEvents'; // Nombre del evento de tareas (¡Ojo! En tu config del server es 'tasks')
@@ -63,15 +64,14 @@ export async function consumeRabbitTaskSubmissionsService() {
             const assertedQueue = await channel.assertQueue(parentalApprovalQueueConfig.name, parentalApprovalQueueConfig.options);
             console.log(`Esperando mensajes en la cola "${assertedQueue.queue}"...`);
 
-            channel.consume(assertedQueue.queue, (msg) => {
+            channel.consume(assertedQueue.queue, async (msg) => {
                 if (msg) {
                     try {
                         const taskSubmissionEvent = JSON.parse(msg.content.toString());
                         console.log('Evento de subida de tarea recibido:', taskSubmissionEvent);
-                        console.log('[CLIENTE] Evento de subida de tarea recibido:', taskSubmissionEvent);
 
-                        // Lógica para procesar el evento de subida de tarea
-
+                        await handleTaskEvent(taskSubmissionEvent);
+                        
                         channel.ack(msg);
                     } catch (error) {
                         console.error('Error al procesar el mensaje:', error);
@@ -92,4 +92,4 @@ export async function consumeRabbitTaskSubmissionsService() {
     }
 }
 
-// consumeRabbitTaskSubmissionsService().catch(console.error);
+ consumeRabbitTaskSubmissionsService().catch(console.error);
