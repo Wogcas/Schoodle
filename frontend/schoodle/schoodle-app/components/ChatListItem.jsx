@@ -1,32 +1,33 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import { useRouter } from "expo-router"; // Usar useRouter para navegación programática
-import { Colors } from "../constants/Colors"; // Ajusta la ruta
+import { useRouter } from "expo-router";
+import { Colors } from "../constants/Colors";
 
 const ChatListItem = ({
-    currentUserId, 
-    otherUserId,     
-    otherUserName,    
-    chatContextTitle, 
+    currentUserId,
+    currentUserType,
+    otherUserId, 
+    otherUserName,
+    chatContextTitle,
     lastMessageContent,
     lastMessageTimestamp,
-    // status,
+    unreadCount,
     avatarUri,
 }) => {
     const router = useRouter();
 
     const handlePress = () => {
-        if (!currentUserId || !otherUserId) {
-            console.warn("ChatListItem: Faltan IDs para navegar.");
+        if (!currentUserId || !otherUserId || !currentUserType) {
+            console.warn("ChatListItem: Faltan IDs o currentUserType para navegar.", {currentUserId, otherUserId, currentUserType});
             return;
         }
         router.push({
-            pathname: `/chat/${otherUserId}`, 
+            pathname: `/chat/${otherUserId}`,
             params: {
                 currentUserId: currentUserId,
-                otherUserIdParam: otherUserId, 
-                otherUserName: otherUserName,  
-                chatTitle: chatContextTitle, 
+                currentUserType: currentUserType,
+                otherUserName: otherUserName,
+                chatTitle: chatContextTitle,
             },
         });
     };
@@ -34,21 +35,28 @@ const ChatListItem = ({
     return (
         <TouchableOpacity style={styles.container} onPress={handlePress}>
             <View style={styles.avatarContainer}>
-                <Image source={typeof avatarUri === "string" ? { uri: avatarUri } : avatarUri} style={styles.avatar} />
+                <Image source={avatarUri} style={styles.avatar} />
             </View>
             <View style={styles.contentContainer}>
                 <View style={styles.headerContainer}>
-                    <Text style={styles.titleText}>{otherUserName}</Text>
-                    <View style={styles.timeContainer}>
+                    <Text style={styles.titleText} numberOfLines={1}>{otherUserName}</Text>
+                    {lastMessageTimestamp && (
                         <Text style={styles.timeText}>
-                            {lastMessageTimestamp ? new Date(lastMessageTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ""}
+                            {new Date(lastMessageTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </Text>
-                    </View>
+                    )}
                 </View>
-                <Text style={styles.subtitleText}>{chatContextTitle}</Text>
-                <Text style={styles.messageText} numberOfLines={1} ellipsizeMode="tail">
-                    {lastMessageContent}
-                </Text>
+                <Text style={styles.subtitleText} numberOfLines={1}>{chatContextTitle}</Text>
+                <View style={styles.messageRow}>
+                    <Text style={styles.messageText} numberOfLines={1} ellipsizeMode="tail">
+                        {lastMessageContent}
+                    </Text>
+                    {unreadCount > 0 && (
+                        <View style={styles.unreadBadge}>
+                            <Text style={styles.unreadText}>{unreadCount}</Text>
+                        </View>
+                    )}
+                </View>
             </View>
         </TouchableOpacity>
     );
@@ -59,7 +67,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         paddingHorizontal: 15,
         paddingVertical: 12,
-        borderBottomWidth: 1,
+        borderBottomWidth: StyleSheet.hairlineWidth,
         borderBottomColor: Colors.lightGray,
         backgroundColor: Colors.white,
     },
@@ -71,7 +79,7 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        backgroundColor: Colors.lightGray,
+        backgroundColor: Colors.lightGray, 
     },
     contentContainer: {
         flex: 1,
@@ -84,25 +92,45 @@ const styles = StyleSheet.create({
         marginBottom: 2,
     },
     titleText: {
-        fontSize: 16, 
-        fontWeight: "600", 
+        fontSize: 16,
+        fontWeight: "600",
         color: Colors.text,
+        flexShrink: 1, 
     },
-    subtitleText: { 
+    subtitleText: {
         fontSize: 14,
-        color: Colors.textSecondary, 
+        color: Colors.textSecondary,
         marginBottom: 3,
+    },
+    messageRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     },
     messageText: {
         fontSize: 14,
         color: Colors.textSecondary,
-    },
-    timeContainer: {
-        alignItems: "flex-end",
+        flex: 1, 
     },
     timeText: {
         fontSize: 12,
         color: Colors.textSecondary,
+        marginLeft: 8, 
+    },
+    unreadBadge: {
+        backgroundColor: Colors.primary,
+        borderRadius: 10,
+        minWidth: 20,
+        height: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 8,
+        paddingHorizontal: 6,
+    },
+    unreadText: {
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: 'bold',
     },
 });
 

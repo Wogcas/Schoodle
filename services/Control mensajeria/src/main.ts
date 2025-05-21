@@ -1,5 +1,8 @@
 import express from 'express';
-import http from 'http';
+import https from 'https'; // <--- AÑADIR MÓDULO HTTPS
+import http from 'http'; // Lo mantenemos por si quieres un servidor HTTP también o por la estructura original
+import fs from 'fs';     // <--- AÑADIR MÓDULO FILE SYSTEM
+import path from 'path';   // <--- AÑADIR MÓDULO PATH
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createMessageRouter } from './routes/messageRoutes';
@@ -7,10 +10,18 @@ import { MessageController } from './controllers/messageController';
 import ChatService from './services/chatService';
 import { NotificationPublisherService } from './rabbit/notificationsRabbit';
 
+
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const HTTP_PORT = process.env.PORT || 4000;
+const HTTPS_PORT = process.env.HTTPS_PORT || 4043;
+
+const sslOptions = {
+    key: fs.readFileSync(path.join(__dirname, '../ssl_certs/server.key')), 
+    cert: fs.readFileSync(path.join(__dirname, '../ssl_certs/server.crt')) 
+};
+
 
 const notificationPublisherService = new NotificationPublisherService();
 const chatServiceInstance = new ChatService(notificationPublisherService);
@@ -31,20 +42,19 @@ app.get('/health', (req, res) => {
     });
 });
 
-const server = http.createServer(app);
+const httpsServer = https.createServer(sslOptions, app);
 
 async function startServer() {
     try {
         await chatServiceInstance.initialize();
-
         console.log('Todos los servicios necesarios han sido inicializados.');
 
-        server.listen(PORT, () => {
-            console.log(`Servidor ejecutándose en http://localhost:${PORT}`);
-            console.log(`Conexión WebSTOMP disponible en ${chatServiceInstance.getWebStompURL()}`);
+        httpsServer.listen(HTTPS_PORT, () => {
+            console.log(`Servidor HTTPS ejecutándose en https://localhost:${HTTPS_PORT}`);
+            console.log(`Conexión WebSTOMP (WSS) debería estar disponible en ${chatServiceInstance.getWebStompURL()}`);
         });
 
-       const shutdown = async (signal?: string) => {
+        const shutdown = async (signal?: string) => {
             if (signal) console.log(`\nRecibida señal ${signal}. Cerrando servidor...`);
             else console.log('Iniciando cierre del servidor...');
 
@@ -54,14 +64,16 @@ async function startServer() {
             } catch (error) {
                 console.error("Error durante el cierre de servicios:", error);
             } finally {
-                server.close((err) => {
+                
+                httpsServer.close((err) => {
                     if (err) {
-                        console.error("Error al cerrar el servidor HTTP:", err);
+                        console.error("Error al cerrar el servidor HTTPS:", err);
                         process.exit(1);
                     }
-                    console.log('Servidor HTTP cerrado.');
+                    console.log('Servidor HTTPS cerrado.');
                     process.exit(0);
                 });
+                
             }
         };
 
@@ -79,4 +91,4 @@ async function startServer() {
 
 startServer();
 
-export default server; 
+export default httpsServer;

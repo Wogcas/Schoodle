@@ -4,6 +4,9 @@ import { MessageController } from '../controllers/messageController';
 export const createMessageRouter = (messageControllerInstance: MessageController): Router => {
     const router = Router();
 
+    // Ruta para obtener la lista de conversaciones de un usuario
+    router.get('/conversations/:userId', messageControllerInstance.getConversations);
+
     // Ruta para obtener el historial de mensajes entre dos usuarios
     router.get('/history/:user1Id/:user2Id', messageControllerInstance.getMessageHistory);
 

@@ -1,9 +1,8 @@
 
-const BASE_URL = 'http://192.168.100.13:4000/api/messages';
+const BASE_URL = 'https://192.168.100.13:4043/api/messages';
 
 /**
  * Obtiene la configuración STOMP del backend.
- * @returns {Promise<Object>} Configuración STOMP { stompUrl, exchange }.
  */
 export const getStompConfig = async () => {
     try {
@@ -20,10 +19,30 @@ export const getStompConfig = async () => {
 };
 
 /**
+ * Obtiene todas las conversaciones para un usuario específico.
+ * @param {string} userId - ID del usuario.
+ * @returns {Promise<Array<Object>>} Array de ConversationListItemDto.
+ */
+export const getConversationsForUser = async (userId) => {
+    try {
+        console.log(`apiService: Fetching conversations for user: ${userId}`);
+        const response = await fetch(`${BASE_URL}/conversations/${userId}`);
+        if (!response.ok) {
+            const errorData = await response.text();
+            throw new Error(`Error fetching conversations: ${response.status} ${errorData}`);
+        }
+        const data = await response.json();
+        console.log(`apiService: Received ${data.length} conversations`);
+        return data;
+    } catch (error) {
+        console.error('apiService.getConversationsForUser error:', error);
+        throw error;
+    }
+};
+
+
+/**
  * Obtiene el historial de mensajes entre dos usuarios.
- * @param {string} user1Id - ID del primer usuario.
- * @param {string} user2Id - ID del segundo usuario.
- * @returns {Promise<Array<Object>>} Array de objetos MessageDto.
  */
 export const getMessageHistory = async (user1Id, user2Id) => {
     try {
@@ -44,9 +63,6 @@ export const getMessageHistory = async (user1Id, user2Id) => {
 
 /**
  * Marca un mensaje como leído.
- * @param {string} messageId - ID del mensaje a marcar como leído.
- * @param {string} userIdMakingRequest - ID del usuario que realiza la solicitud.
- * @returns {Promise<Object>} Respuesta del servidor.
  */
 export const markMessageAsRead = async (messageId, userIdMakingRequest) => {
     try {
@@ -56,7 +72,7 @@ export const markMessageAsRead = async (messageId, userIdMakingRequest) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ userIdMakingRequest }),
+            body: JSON.stringify({ userIdMakingRequest }), // El backend espera esto en el body para pruebas
         });
         if (!response.ok) {
             const errorData = await response.json();

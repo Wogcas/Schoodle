@@ -2,10 +2,12 @@ import { WebSocket } from 'ws';
 import { Client, Message } from '@stomp/stompjs';
 import fetch from 'node-fetch';
 import readline from 'readline';
+import https from 'https';
 
-const apiUrl = 'http://localhost:4000/api/messages'; 
+
+const apiUrl = 'https://localhost:4043/api/messages';
 const userType = 'parent';
-const userId = 'parent-123';
+const userId = 'parent-123'; 
 const chatWith = 'teacher-789';
 
 const rl = readline.createInterface({
@@ -13,14 +15,29 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
+const httpsAgent = new https.Agent({
+    rejectUnauthorized: false, // Para probar localmente
+});
+
+
+// Clave de enrutamiento a la que ChatConsumerService está escuchando para guardar mensajes
+const SAVE_MESSAGE_ROUTING_KEY = 'chat.message.save';
+
 async function main() {
     try {
         // Obtener la configuración de STOMP
-        const response = await fetch(`${apiUrl}/stomp-config`);
+        const response = await fetch(`${apiUrl}/stomp-config`,{
+            agent: httpsAgent,
+        });
         if (!response.ok) {
-            throw new Error(`Error fetching STOMP config: ${response.status}`);
+            throw new Error(`Error fetching STOMP config: ${response.status} ${await response.text()}`);
         }
         const stompConfig = await response.json();
+        console.log('STOMP Config recibida:', stompConfig);
+
+        if (!stompConfig.stompUrl || !stompConfig.exchange) {
+            throw new Error('STOMP config is missing stompUrl or exchange');
+        }
 
         // Crear el cliente STOMP
         const client = new Client({
@@ -30,69 +47,93 @@ async function main() {
                 passcode: 'guest'
             },
             reconnectDelay: 5000,
+            heartbeatIncoming: 4000,
+            heartbeatOutgoing: 4000,
             webSocketFactory: () => {
-                return new WebSocket(stompConfig.stompUrl);
+                const ws = new WebSocket(stompConfig.stompUrl, {
+                    rejectUnauthorized: false
+                });
+                return ws;
             },
         });
 
-        //Conectar y suscribirse a las colas
+        // Conectar y suscribirse a las colas
         client.onConnect = async () => {
-            console.log(`[${userId}] Conectado a STOMP`);
+            console.log(`[${userId} (${userType})] Conectado a STOMP. Exchange: ${stompConfig.exchange}`);
 
-            // Crear la cola del usuario
-            await fetch(`${apiUrl}/queue/${userId}`, { method: 'POST' });
-
-            // Suscribirse a la cola
-            client.subscribe(`/exchange/${stompConfig.exchange}/chat.*.${userId}`, (message: Message) => {
-                const receivedMsg = JSON.parse(message.body);
-                console.log(`\n[${new Date(receivedMsg.timestamp).toLocaleTimeString()}] ${receivedMsg.from}: ${receivedMsg.content}`);
-                rl.prompt();
+            const subscriptionRoute = `/exchange/${stompConfig.exchange}/chat.*.${userId}`;
+            console.log(`[${userId} (${userType})] Suscribiéndose a: ${subscriptionRoute}`);
+            client.subscribe(subscriptionRoute, (message: Message) => {
+                try {
+                    const receivedMsg = JSON.parse(message.body);
+                    console.log(`\n[${new Date(receivedMsg.timestamp).toLocaleTimeString()}] ${receivedMsg.from}: ${receivedMsg.content}`);
+                } catch (e) {
+                    console.error("Error al parsear mensaje recibido:", e);
+                    console.error("Cuerpo del mensaje:", message.body);
+                }
+                rl.prompt(true);
             });
 
             // Iniciar el chat
-            console.log(`Iniciando chat con ${chatWith}. Escribe un mensaje (o "salir"):`);
+            console.log(`Iniciando chat como ${userType} (${userId}) con ${chatWith}. Escribe "salir" para terminar.`);
             rl.prompt();
 
             rl.on('line', (line) => {
                 if (line.toLowerCase() === 'salir') {
+                    console.log('Desconectando...');
                     client.deactivate();
                     rl.close();
                     process.exit(0);
-                } else {
-                    sendMessage(client, line);
-                    rl.prompt();
+                } else if (line.trim()) { // Solo enviar si la línea no está vacía
+                    sendMessage(client, line, stompConfig.exchange);
                 }
+                rl.prompt(true);
             });
         };
 
         client.onStompError = (frame) => {
-            console.error('STOMP error:', frame);
+            console.error(`Error de STOMP Broker: ${frame.headers['message']}`);
+            console.error(`Detalles adicionales: ${frame.body}`);
+            console.error('Headers del error:', frame.headers);
+        };
+
+        client.onWebSocketError = (error) => {
+            console.error('Error en WebSocket:', error);
         };
 
         client.onDisconnect = () => {
-            console.log('Desconectado de STOMP');
+            console.log(`[${userId} (${userType})] Desconectado de STOMP`);
         };
 
+        console.log(`[${userId} (${userType})] Activando cliente STOMP...`);
         client.activate();
 
     } catch (error) {
-        console.error('Error:', error);
+        console.error(`Error en la función main para ${userType} (${userId}):`, error);
+        process.exit(1);
     }
 }
 
-function sendMessage(client: Client, content: string) {
-    const message = {
+function sendMessage(client: Client, content: string, exchangeName: string) {
+    const messagePayload = {
         from: userId,
         to: chatWith,
         content: content,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
+        senderUserType: userType
     };
-    client.publish({
-        destination: `/exchange/chat_exchange/chat.${userType}.${chatWith}`,
-        body: JSON.stringify(message),
-        headers: { 'content-type': 'application/json' }
-    });
-    console.log(`[${new Date().toLocaleTimeString()}] Tú: ${content}`);
+
+    const destination = `/exchange/${exchangeName}/${SAVE_MESSAGE_ROUTING_KEY}`;
+    try {
+        client.publish({
+            destination: destination,
+            body: JSON.stringify(messagePayload),
+            headers: { 'content-type': 'application/json' }
+        });
+
+    } catch (e) {
+        console.error("Error al publicar mensaje:", e);
+    }
 }
 
 main();
