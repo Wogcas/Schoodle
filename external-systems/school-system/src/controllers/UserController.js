@@ -44,9 +44,14 @@ class UserController {
     static getUsersRegisteredSince(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const startDate = new Date(req.query.since);
+                const startDateParam = req.query.since;
+                const startDate = new Date(startDateParam);
                 if (isNaN(startDate.getTime())) {
-                    res.status(400).json({ error: 'Invalid start date format' });
+                    res.status(400).json({
+                        error: 'Formato de fecha/hora inválido. Use ISO8601 (YYYY-MM-DD o YYYY-MM-DDTHH:MM:SS)',
+                        example1: '2024-01-01',
+                        example2: '2024-01-01T14:30:00'
+                    });
                     return;
                 }
                 const users = yield userService.getUsersRegisteredSince(startDate);

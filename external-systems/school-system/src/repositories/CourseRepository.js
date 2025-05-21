@@ -12,27 +12,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.CourseRepository = void 0;
 const knex_1 = __importDefault(require("../database/knex"));
 const BaseRepository_1 = __importDefault(require("./BaseRepository"));
-class SchoolTermRepository extends BaseRepository_1.default {
+class CourseRepository extends BaseRepository_1.default {
     constructor() {
-        super('SchoolTerms');
+        super('Courses');
     }
-    getLatestSchoolTerm() {
+    getCoursesByTerm(termId) {
         return __awaiter(this, void 0, void 0, function* () {
-            return (0, knex_1.default)('SchoolTerms')
-                .select('*')
-                .orderBy('termStartDate', 'desc')
-                .first();
-        });
-    }
-    getSchoolTermById(termId) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return (0, knex_1.default)('SchoolTerms')
-                .select('*')
-                .where('id', termId)
-                .first();
+            return (0, knex_1.default)('SchoolTerms as ST')
+                .select([
+                'C.id',
+                'C.name',
+                'C.idNumber'
+            ])
+                .innerJoin('EnrolledTerms as ET', 'ST.id', 'ET.schoolTermId')
+                .innerJoin('CourseTaken as CT', 'ET.id', 'CT.enrolledTermId')
+                .innerJoin('Course as C', 'CT.courseId', 'C.id')
+                .where('ST.id', termId)
+                .groupBy('C.id')
+                .orderBy('C.name', 'asc');
         });
     }
 }
-exports.default = SchoolTermRepository;
+exports.CourseRepository = CourseRepository;

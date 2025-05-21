@@ -12,6 +12,7 @@ const user_1 = __importDefault(require("./routes/user"));
 const schoolTerm_1 = __importDefault(require("./routes/schoolTerm"));
 const grade_1 = __importDefault(require("./routes/grade"));
 const violation_1 = __importDefault(require("./routes/violation"));
+const course_1 = __importDefault(require("./routes/course"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.get('/', (req, res) => {
@@ -24,4 +25,5 @@ app.use('/api/school-system/users', user_1.default);
 app.use('/api/school-system/school-terms', schoolTerm_1.default);
 app.use('/api/school-system/grades', grade_1.default);
 app.use('/api/school-system/violations', violation_1.default);
+app.use('/api/school-system/courses', course_1.default);
 exports.default = app;
