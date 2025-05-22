@@ -8,7 +8,6 @@ export interface RabbitMQConfig {
     exchanges: Record<string, ExchangeConfig>;
     ssl?: { // Nuevas propiedades opcionales para SSL
         enabled: boolean;
-        caPath?: string;
         certPath?: string;
         keyPath?: string;
         passphrase?: string;

@@ -25,7 +25,6 @@ class RabbitMQConnection {
                 ? await amqp.connect(connectionUrl, options)
                 : await amqp.connect(connectionUrl);
 
-            this.connection = await amqp.connect(connectionUrl);
             this.channel = await this.connection.createChannel();
             console.log("Connected to RabbitMQ successfully.");
 
