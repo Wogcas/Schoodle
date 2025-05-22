@@ -7,6 +7,11 @@ import { ParentalApprovalService } from './services/parental-approval.service';
 import { AppService } from './app.service';
 import { readFileSync } from 'fs';
 import { ChannelCredentials } from '@grpc/grpc-js';
+import { HttpModule } from '@nestjs/axios';
+import { enviroment } from './config/enviroment.config';
+import * as https from 'https';
+import { AuthenticationService } from './services/authentication.service';
+
 
 @Module({
   imports: [
@@ -37,9 +42,15 @@ import { ChannelCredentials } from '@grpc/grpc-js';
           url: 'localhost:50051',
         }
       },
-    ])
+    ]),
+    HttpModule.register({
+      baseURL: enviroment.authservice,
+      httpsAgent: new https.Agent({
+        rejectUnauthorized: false // Ignora errores de certificados autofirmados
+      })
+    })
   ],
   controllers: [AppController],
-  providers: [MoodleInfoService, ParentalApprovalService, AppService],
+  providers: [MoodleInfoService, ParentalApprovalService, AuthenticationService, AppService],
 })
 export class AppModule { }

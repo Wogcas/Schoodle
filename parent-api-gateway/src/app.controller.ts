@@ -1,13 +1,15 @@
-import { Controller, Get, Param, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseInterceptors } from "@nestjs/common";
 import { MoodleInfoService } from "./services/moodle-info.service";
 import { AppService } from "./app.service";
+import { AuthenticationService } from "./services/authentication.service";
 
 @Controller()
 export class AppController {
 
   constructor(
     private readonly appService: AppService,
-    private readonly moodleInfoService: MoodleInfoService
+    private readonly moodleInfoService: MoodleInfoService,
+    private readonly authService: AuthenticationService
   ) { }
 
   @Get()
@@ -59,8 +61,17 @@ export class AppController {
     @Param('id') id: number,
     @Param('courseid') courseid: number,
     @Param('type') type: string
-  ){
+  ) {
     return await this.moodleInfoService.getUserGradesByType(id, courseid, type);
+  }
+
+  @Post('login')
+  async login(@Body() userdata: { email: string, password: string }) {
+    try {
+      return await this.authService.login(userdata.email, userdata.password);
+    } catch (error) {
+      throw new Error('Error during login: ' + error.message);
+    }
   }
 
 }
