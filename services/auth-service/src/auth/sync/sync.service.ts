@@ -41,6 +41,25 @@ export class SyncService implements ISyncService {
     return this.userRepository.save(newUser);
   }
 
+  // Registro rapido de usuario
+  async createUser(syncUserDto: SyncUserDto) {
+    const existingUser = await this.userRepository.findOne({ where: { email: syncUserDto.email } });
+
+    if (existingUser) {
+      throw new Error('User already exists');
+    }
+
+    const newUser = new User();
+    newUser.email = syncUserDto.email;
+    newUser.password = await bcrypt.hash(syncUserDto.password, 10);
+    newUser.firstName = syncUserDto.firstName;
+    newUser.lastName = syncUserDto.lastName;
+    newUser.idNumber = syncUserDto.idNumber;
+    newUser.role = syncUserDto.role;
+
+    return this.userRepository.save(newUser);
+  }
+
   // Métodos adicionales que podrían ser necesarios para otros servicios
   async getUserByEmail(email: string): Promise<User | undefined> {
     return (await this.userRepository.findOne({ where: { email } })) ?? undefined;

@@ -6,6 +6,14 @@ export interface RabbitMQConfig {
     vhost: string;
     queues: Record<string, QueueConfig>;
     exchanges: Record<string, ExchangeConfig>;
+    ssl?: { // Nuevas propiedades opcionales para SSL
+        enabled: boolean;
+        caPath?: string;
+        certPath?: string;
+        keyPath?: string;
+        passphrase?: string;
+        rejectUnauthorized?: boolean;
+    };
 }
 
 export interface QueueConfig {
