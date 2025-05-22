@@ -1,18 +1,26 @@
-
+import https from 'https';
 import axios from 'axios';
+import fs from 'fs';
 import TaskDataSource from './taskDataSource.js';
-import { TaskDAO } from '../DAOs/TaskDAO.js';
 
 const MOODLE_API = 'https://localhost:8080/api/moodle/rest';
 
-
-const taskDAO = new TaskDAO();
-
-class ExternalTaskDataSource extends TaskDataSource {
+class SecureExternalTaskDataSource extends TaskDataSource {
+    constructor() {
+        super();
+        this.axiosInstance = axios.create({
+            httpsAgent: new https.Agent({
+                rejectUnauthorized: false,
+                cert: fs.readFileSync('../key.pem'),
+                key: fs.readFileSync('../cert.pem'),
+            }),
+            baseURL: 'https://localhost:8080/api/moodle/rest'
+        });
+    }
 
     async getSiteInfo() {
         try {
-            const response = await axios.get(`${MOODLE_API}/site-info`);
+            const response = await this.axiosInstance.get('/site-info');
             console.log('Site info from API:', response.data);
             return response.data;
         } catch (error) {
@@ -20,6 +28,7 @@ class ExternalTaskDataSource extends TaskDataSource {
             throw error;
         }
     }
+
 
     async getPendingTasks(parentId) {
         try {
@@ -55,4 +64,4 @@ class ExternalTaskDataSource extends TaskDataSource {
     }
 }
 
-export default ExternalTaskDataSource;
+export default SecureExternalTaskDataSource;
