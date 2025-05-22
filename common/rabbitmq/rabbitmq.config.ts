@@ -30,8 +30,8 @@ export interface ExchangeConfig {
 const rabbitConfig: RabbitMQConfig = {
     host: process.env.RABBITMQ_HOST || 'localhost',
     port: parseInt(process.env.RABBITMQ_PORT || '5672', 10),
-    username: process.env.RABBITMQ_USERNAME || 'notifications',
-    password: process.env.RABBITMQ_PASSWORD || 'notifications',
+    username: process.env.RABBITMQ_USERNAME || 'guest',
+    password: process.env.RABBITMQ_PASSWORD || 'guest',
     vhost: process.env.RABBITMQ_VHOST || '/',
     queues: {
         default: {
