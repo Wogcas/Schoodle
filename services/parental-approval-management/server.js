@@ -1,18 +1,22 @@
-
 import { HTTP_PORT } from './utils/config.js';
-import { consumeRabbitTaskSubmissionsService, publishTaskSubmissionEvent } from './services/consumeRabbitTaskSubmissionService.js';
 import { createHttpServer } from './config/express.js';
+import ParentalApprovalServiceAdapter from './services/grpc/ParentalApprovalServiceAdapter.js'
+import ParentalApprovalService from './services/grpc/ParentalApprovalService.js';
 import { startGrpcServer } from './config/grpc.js';
 import {
     consumeRabbitTaskSubmissionsService,
     publishTaskSubmissionEvent
-} from './services/rabbitmq-service.js';
+}
+    from './services/consumeRabbitTaskSubmissionService.js';
+
+
 
 // Configurar e iniciar servidor HTTP
 const httpServer = createHttpServer();
 
 // Iniciar servidor gRPC
-startGrpcServer();
+const adapter = new ParentalApprovalServiceAdapter(new ParentalApprovalService());
+startGrpcServer(adapter);
 
 // Iniciar consumidor RabbitMQ
 const initializeRabbitMQ = async () => {

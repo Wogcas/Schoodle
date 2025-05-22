@@ -1,7 +1,12 @@
 import amqplib from "amqplib";
 import rabbitmqConfig from "../utils/rabbitmqConfig.js";
 import { handleTaskEvent } from "../data-base/HandleTaskEvent.js";
+import path from "path";
+import { fileURLToPath } from 'url';
 import fs from "fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const TASK_SUBMISSION_QUEUE_NAME = 'taskSubmissions';
 const TASK_SUBMISSION_EXCHANGE_NAME = 'tasksEvents';
@@ -14,10 +19,14 @@ async function ensureConnectionAndChannel() {
     if (!connection) {
         const { host, port, username, password, vhost } = rabbitmqConfig;
 
+        const certPath = path.resolve(__dirname, '../certs/cert.pem');
+        const keyPath = path.resolve(__dirname, '../certs/key.pem');
+
+
         // Configuración TLS simplificada
         const options = {
-            cert: fs.readFileSync('../cert.pem'),
-            key: fs.readFileSync('../key.pem'),
+            cert: fs.readFileSync(certPath),
+            key: fs.readFileSync(keyPath),
             rejectUnauthorized: false,
             credentials: amqplib.credentials.external()
         };

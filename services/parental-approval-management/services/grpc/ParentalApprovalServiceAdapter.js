@@ -1,20 +1,20 @@
 
 import grpc from '@grpc/grpc-js';
-import TaskDataSource from './taskDataSource.js';
+import ParentalApprovalService from './ParentalApprovalService.js';
 
-class ParentalApprovalManagementGrpcService {
+class ParentalApprovalServiceAdapter {
 
-    
-    constructor(taskDataSource) {
-        if (!(taskDataSource instanceof TaskDataSource)) {
-            throw new Error('taskDataSource must be an instance of TaskDataSource.');
+
+    constructor(parentalApprovalService) {
+        if (!(parentalApprovalService instanceof ParentalApprovalService)) {
+            throw new Error('parentalApprovalService must be an instance of ParentalApprovalService.');
         }
-        this.taskDataSource = taskDataSource;
+        this.parentalApprovalService = parentalApprovalService;
     }
 
     async GetSiteInfo(call, callback) {
         try {
-            const siteInfo = await this.taskDataSource.getSiteInfo(); // Llama al servicio
+            const siteInfo = await this.parentalApprovalService.getSiteInfo();
             callback(null, siteInfo); // Pasa los datos al callback
         } catch (error) {
             console.error('Error getting site info:', error);
@@ -25,7 +25,7 @@ class ParentalApprovalManagementGrpcService {
     async GetPendingTasksToApprove(call, callback) {
         try {
             const parentId = call.request.parent_id;
-            const tasksFromApi = await this.taskDataSource.getPendingTasks(parentId);
+            const tasksFromApi = await this.parentalApprovalService.getPendingTasks(parentId);
             const response = {
                 tasks: tasksFromApi.map(task => ({
                     id: task.id,
@@ -43,7 +43,7 @@ class ParentalApprovalManagementGrpcService {
     async GetSelectedTask(call, callback) {
         try {
             const taskId = call.request.id;
-            const taskFromApi = await this.taskDataSource.getTaskDetails(taskId);
+            const taskFromApi = await this.parentalApprovalService.getTaskDetails(taskId);
             if (taskFromApi) {
                 const response = {
                     id: taskFromApi.id,
@@ -67,7 +67,7 @@ class ParentalApprovalManagementGrpcService {
         try {
             const taskId = call.request.task_id;
             const parentId = call.request.parent_id;
-            const approvalResult = await this.taskDataSource.approveTask(taskId, parentId);
+            const approvalResult = await this.parentalApprovalService.approveTask(taskId, parentId);
             const response = {
                 success: approvalResult.success,
                 message: approvalResult.message,
@@ -80,4 +80,4 @@ class ParentalApprovalManagementGrpcService {
     }
 }
 
-export default ParentalApprovalManagementGrpcService;
+export default ParentalApprovalServiceAdapter;

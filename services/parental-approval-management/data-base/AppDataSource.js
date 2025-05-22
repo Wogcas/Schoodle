@@ -9,7 +9,7 @@ export const AppDataSource = new DataSource({
     host: process.env.DB_HOST || "localhost",
     port: parseInt(process.env.DB_PORT || "3306"),
     username: process.env.DB_USERNAME || "root",
-    password: process.env.DB_PASSWORD || "Itson",
+    password: process.env.DB_PASSWORD || "cinco123",
     database: "parentalApprovalManagementDB",
     synchronize: false,
     logging: true,
