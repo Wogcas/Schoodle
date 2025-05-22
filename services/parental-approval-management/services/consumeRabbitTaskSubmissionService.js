@@ -17,7 +17,7 @@ let channel;
 
 async function ensureConnectionAndChannel() {
     if (!connection) {
-        const { host, port, username, password, vhost } = rabbitmqConfig;
+        const { host, port, username, password, vhost, ssl } = rabbitmqConfig;
 
         const certPath = path.resolve(__dirname, '../certs/cert.pem');
         const keyPath = path.resolve(__dirname, '../certs/key.pem');
@@ -28,7 +28,6 @@ async function ensureConnectionAndChannel() {
             cert: fs.readFileSync(certPath),
             key: fs.readFileSync(keyPath),
             rejectUnauthorized: false,
-            credentials: amqplib.credentials.external()
         };
 
         const connectionUrl = `amqps://${username}:${password}@${host}:${port}${vhost ? `/${vhost}` : ''}`;
