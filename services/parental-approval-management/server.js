@@ -2,7 +2,7 @@
 import { HTTP_PORT } from './utils/config.js';
 import { consumeRabbitTaskSubmissionsService, publishTaskSubmissionEvent } from './services/consumeRabbitTaskSubmissionService.js';
 import { createHttpServer } from './config/express.js';
-import { createSecureGrpcServer } from './config/grpc.js';
+import { startGrpcServer } from './config/grpc.js';
 import {
     consumeRabbitTaskSubmissionsService,
     publishTaskSubmissionEvent
@@ -12,7 +12,7 @@ import {
 const httpServer = createHttpServer();
 
 // Iniciar servidor gRPC
-createSecureGrpcServer();
+startGrpcServer();
 
 // Iniciar consumidor RabbitMQ
 const initializeRabbitMQ = async () => {

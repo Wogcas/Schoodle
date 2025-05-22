@@ -10,7 +10,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-export function createSecureGrpcServer(serviceImplementation) {
+export function startGrpcServer(serviceImplementation) {
     // Cargar el archivo proto
     const packageDefinition = protoLoader.loadSync(
         path.join(__dirname, 'protos', 'tasks-parental-approval-management.proto'),
