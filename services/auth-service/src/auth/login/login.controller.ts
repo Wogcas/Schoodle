@@ -8,6 +8,10 @@ export class LoginController {
 
   @Post()
   async login(@Body() loginDto: LoginDto) {
-    return this.loginService.login(loginDto);
+    try {
+      return await this.loginService.login(loginDto);
+    } catch (error) {
+      throw error;
+    }
   }
 }
