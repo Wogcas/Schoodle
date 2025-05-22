@@ -19,22 +19,23 @@ async function ensureConnectionAndChannel() {
     if (!connection) {
         const { host, port, username, password, vhost, ssl } = rabbitmqConfig;
 
-        const certPath = path.resolve(__dirname, '../certs/cert.pem');
-        const keyPath = path.resolve(__dirname, '../certs/key.pem');
-
-
-        // Configuración TLS simplificada
-        const options = {
-            cert: fs.readFileSync(certPath),
-            key: fs.readFileSync(keyPath),
-            rejectUnauthorized: false,
-        };
-
-        const connectionUrl = `amqps://${username}:${password}@${host}:${port}${vhost ? `/${vhost}` : ''}`;
-
         try {
-            connection = await amqplib.connect(connectionUrl, options);
-            console.log('[CLIENTE] Conexión segura a RabbitMQ establecida.');
+            const protocol = ssl.enabled ? 'amqps' : 'amqp';
+            const connectionUrl = `${protocol}://${username}:${password}@${host}:${port}${vhost ? `/${vhost}` : ''}`;
+
+            const options = ssl.enabled ? {
+                ca: ssl.caPath ? [fs.readFileSync(ssl.caPath)] : undefined,
+                cert: ssl.certPath ? fs.readFileSync(ssl.certPath) : undefined,
+                key: ssl.keyPath ? fs.readFileSync(ssl.keyPath) : undefined,
+                passphrase: ssl.passphrase,
+                rejectUnauthorized: ssl.rejectUnauthorized
+            } : undefined;
+
+            connection = options ?
+                await amqplib.connect(connectionUrl, options) :
+                await amqplib.connect(connectionUrl);
+
+            console.log(`[CLIENTE] Conexión ${ssl.enabled ? 'segura' : ''} a RabbitMQ establecida.`);
 
             connection.on('error', (err) => {
                 console.error('Error en la conexión a RabbitMQ:', err);
@@ -42,7 +43,7 @@ async function ensureConnectionAndChannel() {
             });
 
             channel = await connection.createChannel();
-            console.log('[CLIENTE] Canal seguro creado.');
+            console.log('[CLIENTE] Canal creado.');
 
             const taskSubmissionExchange = rabbitmqConfig.exchanges[TASK_SUBMISSION_EXCHANGE_NAME] || {
                 name: TASK_SUBMISSION_EXCHANGE_NAME,

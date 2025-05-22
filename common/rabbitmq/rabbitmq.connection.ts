@@ -14,7 +14,6 @@ class RabbitMQConnection {
             const connectionUrl = `${protocol}://${username}:${password}@${host}:${port}${vhost ? `/${vhost}` : ''}`;
 
             const options = ssl?.enabled ? {
-                ca: ssl.caPath ? [fs.readFileSync(ssl.caPath)] : undefined,
                 cert: ssl.certPath ? fs.readFileSync(ssl.certPath) : undefined,
                 key: ssl.keyPath ? fs.readFileSync(ssl.keyPath) : undefined,
                 passphrase: ssl.passphrase,
