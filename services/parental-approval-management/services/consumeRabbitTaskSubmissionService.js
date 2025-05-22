@@ -1,8 +1,15 @@
 import amqplib from "amqplib";
 import rabbitmqConfig from "../utils/rabbitmqConfig.js";
+import { handleTaskEvent } from "../data-base/HandleTaskEvent.js";
+import path from "path";
+import { fileURLToPath } from 'url';
+import fs from "fs";
 
-const TASK_SUBMISSION_QUEUE_NAME = 'taskSubmissions'; // Nombre para cola
-const TASK_SUBMISSION_EXCHANGE_NAME = 'tasksEvents'; // Nombre del evento de tareas (¡Ojo! En tu config del server es 'tasks')
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const TASK_SUBMISSION_QUEUE_NAME = 'taskSubmissions';
+const TASK_SUBMISSION_EXCHANGE_NAME = 'tasksEvents';
 const TASK_SUBMISSION_ROUTING_KEY = '#';
 
 let connection;
@@ -11,30 +18,70 @@ let channel;
 async function ensureConnectionAndChannel() {
     if (!connection) {
         const { host, port, username, password, vhost } = rabbitmqConfig;
-        const connectionUrl = `amqp://${username}:${password}@${host}:${port}${vhost ? `/${vhost}` : ''}`;
-        connection = await amqplib.connect(connectionUrl);
-        console.log('[CLIENTE] Conexión a RabbitMQ establecida.');
-        connection.on('error', (err) => {
-            console.error('Error en la conexión a RabbitMQ:', err);
-            connection = null;
-        });
-    }
-    if (!channel) {
-        channel = await connection.createChannel();
-        console.log('[CLIENTE] Canal creado.');
-        channel.on('error', (err) => {
-            console.error('Error en el canal de RabbitMQ:', err);
-            channel = null;
-        });
-        const taskSubmissionExchange = rabbitmqConfig.exchanges[TASK_SUBMISSION_EXCHANGE_NAME] || { name: TASK_SUBMISSION_EXCHANGE_NAME, type: 'topic', options: { durable: true } };
-        await channel.assertExchange(taskSubmissionExchange.name, taskSubmissionExchange.type, taskSubmissionExchange.options);
 
-        const parentalApprovalQueueConfig = rabbitmqConfig.queues[TASK_SUBMISSION_QUEUE_NAME] || { name: TASK_SUBMISSION_QUEUE_NAME, options: { durable: true } };
-        const assertedQueue = await channel.assertQueue(parentalApprovalQueueConfig.name, parentalApprovalQueueConfig.options);
-        await channel.bindQueue(assertedQueue.queue, taskSubmissionExchange.name, TASK_SUBMISSION_ROUTING_KEY);
-        console.log(`Cola "${assertedQueue.queue}" vinculada al exchange "${taskSubmissionExchange.name}" con routing key "${TASK_SUBMISSION_ROUTING_KEY}"`);
+        const certPath = path.resolve(__dirname, '../certs/cert.pem');
+        const keyPath = path.resolve(__dirname, '../certs/key.pem');
+
+
+        // Configuración TLS simplificada
+        const options = {
+            cert: fs.readFileSync(certPath),
+            key: fs.readFileSync(keyPath),
+            rejectUnauthorized: false,
+            credentials: amqplib.credentials.external()
+        };
+
+        const connectionUrl = `amqps://${username}:${password}@${host}:${port}${vhost ? `/${vhost}` : ''}`;
+
+        try {
+            connection = await amqplib.connect(connectionUrl, options);
+            console.log('[CLIENTE] Conexión segura a RabbitMQ establecida.');
+
+            connection.on('error', (err) => {
+                console.error('Error en la conexión a RabbitMQ:', err);
+                connection = null;
+            });
+
+            channel = await connection.createChannel();
+            console.log('[CLIENTE] Canal seguro creado.');
+
+            const taskSubmissionExchange = rabbitmqConfig.exchanges[TASK_SUBMISSION_EXCHANGE_NAME] || {
+                name: TASK_SUBMISSION_EXCHANGE_NAME,
+                type: 'topic',
+                options: { durable: true }
+            };
+
+            await channel.assertExchange(
+                taskSubmissionExchange.name,
+                taskSubmissionExchange.type,
+                taskSubmissionExchange.options
+            );
+
+            const parentalApprovalQueueConfig = rabbitmqConfig.queues[TASK_SUBMISSION_QUEUE_NAME] || {
+                name: TASK_SUBMISSION_QUEUE_NAME,
+                options: { durable: true }
+            };
+
+            const assertedQueue = await channel.assertQueue(
+                parentalApprovalQueueConfig.name,
+                parentalApprovalQueueConfig.options
+            );
+
+            await channel.bindQueue(
+                assertedQueue.queue,
+                taskSubmissionExchange.name,
+                TASK_SUBMISSION_ROUTING_KEY
+            );
+
+            console.log(`Cola "${assertedQueue.queue}" vinculada al exchange "${taskSubmissionExchange.name}"`);
+
+        } catch (error) {
+            console.error('Error al establecer conexión segura con RabbitMQ:', error);
+            throw error;
+        }
     }
 }
+
 
 export async function publishTaskSubmissionEvent(payload) {
     try {
@@ -63,14 +110,13 @@ export async function consumeRabbitTaskSubmissionsService() {
             const assertedQueue = await channel.assertQueue(parentalApprovalQueueConfig.name, parentalApprovalQueueConfig.options);
             console.log(`Esperando mensajes en la cola "${assertedQueue.queue}"...`);
 
-            channel.consume(assertedQueue.queue, (msg) => {
+            channel.consume(assertedQueue.queue, async (msg) => {
                 if (msg) {
                     try {
                         const taskSubmissionEvent = JSON.parse(msg.content.toString());
                         console.log('Evento de subida de tarea recibido:', taskSubmissionEvent);
-                        console.log('[CLIENTE] Evento de subida de tarea recibido:', taskSubmissionEvent);
 
-                        // Lógica para procesar el evento de subida de tarea
+                        await handleTaskEvent(taskSubmissionEvent);
 
                         channel.ack(msg);
                     } catch (error) {
@@ -92,4 +138,4 @@ export async function consumeRabbitTaskSubmissionsService() {
     }
 }
 
-// consumeRabbitTaskSubmissionsService().catch(console.error);
+consumeRabbitTaskSubmissionsService().catch(console.error);

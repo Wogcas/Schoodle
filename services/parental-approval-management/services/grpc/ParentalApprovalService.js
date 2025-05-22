@@ -1,5 +1,5 @@
 
-class TaskDataSource {
+class ParentalApprovalService {
 
     async getSiteInfo() {
         return {}
@@ -22,4 +22,4 @@ class TaskDataSource {
     }
 }
 
-export default TaskDataSource;
+export default ParentalApprovalService;

@@ -23,23 +23,6 @@ export class TaskDAO {
         }
     }
 
-    /**
-     * Obtiene una tarea por su ID
-     * @param {string} id - ID de la tarea
-     * @returns {Promise<Task|null>} La tarea encontrada o null si no existe
-     */
-    async getTaskById(id) {
-        try {
-            const task = await this.taskRepository.findById(id);
-            if (!task) {
-                return null;
-            }
-            return task;
-        } catch (error) {
-            console.error(`Error al obtener la tarea con ID ${id}:`, error);
-            throw new Error(`No se pudo recuperar la tarea con ID ${id}`);
-        }
-    }
 
     /**
      * Obtiene tareas por estado
@@ -70,20 +53,57 @@ export class TaskDAO {
     }
 
     /**
-     * Crea una nueva tarea
+     * Crea una nueva tarea (versión corregida)
      * @param {Object} taskData - Datos de la tarea a crear
      * @returns {Promise<Task>} La tarea creada
      */
     async createTask(taskData) {
         try {
-            // Validaciones básicas
-            if (!taskData.nombre) {
+            console.log('Datos recibidos en createTask:', taskData);
+            
+            // Validación actualizada
+            if (!taskData.name && !taskData.assignmentName) {
                 throw new Error('El nombre de la tarea es obligatorio');
             }
 
-            return await this.taskRepository.create(taskData);
+            // Transformación de datos
+            const taskToCreate = {
+                name: taskData.name || taskData.assignmentName,
+                status: taskData.status || 'PENDING',
+                assignmentId: taskData.assignmentId,
+                userId: taskData.userId,
+                course: taskData.course,
+                timeModified: taskData.timeModified ? new Date(taskData.timeModified) : new Date()
+            };
+
+            console.log('Datos transformados para creación:', taskToCreate);
+            
+            // Crear y guardar la entidad
+            const task = this.taskRepository.create(taskToCreate);
+            const result = await this.taskRepository.save(task);
+            
+            console.log('Tarea creada exitosamente:', result);
+            return result;
         } catch (error) {
-            console.error('Error al crear la tarea:', error);
+            console.error('Error detallado en createTask:', {
+                message: error.message,
+                stack: error.stack,
+                inputData: taskData
+            });
+            throw error;
+        }
+    }
+
+    /**
+     * Obtiene una tarea por ID (versión corregida)
+     * @param {number} id - ID de la tarea
+     * @returns {Promise<Task|null>} La tarea encontrada o null
+     */
+    async getTaskById(id) {
+        try {
+            return await this.taskRepository.findOneBy({ id });
+        } catch (error) {
+            console.error(`Error al obtener tarea con ID ${id}:`, error);
             throw error;
         }
     }
