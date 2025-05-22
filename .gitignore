@@ -7,3 +7,13 @@
 .DS_Store
 /services/users-sync-service/node_modules
 .DS_Store
+parent-api-gateway/certs/client.csr
+parent-api-gateway/certs/client.key
+parent-api-gateway/server.crt
+parent-api-gateway/server.key
+services/student-progression/certs/ca.crt
+services/student-progression/certs/server.crt
+services/student-progression/certs/server.csr
+services/student-progression/certs/server.key
+parent-api-gateway/certs/client.crt
+parent-api-gateway/certs/ca.crt
