@@ -9,3 +9,13 @@
 .DS_Store
 .DS_Store
 .DS_Store
+services/student-progression/certs/ca.crt
+parent-api-gateway/certs/ca.crt
+parent-api-gateway/certs/client.crt
+parent-api-gateway/certs/client.csr
+parent-api-gateway/certs/client.key
+parent-api-gateway/server.crt
+parent-api-gateway/server.key
+services/student-progression/certs/server.crt
+services/student-progression/certs/server.csr
+services/student-progression/certs/server.key
