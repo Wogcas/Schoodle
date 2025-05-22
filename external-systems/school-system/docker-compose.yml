@@ -4,12 +4,12 @@ services:
   app:
     build: .
     ports:
-      - "3443:3443"  # HTTPS
-      - "3004:3004"  # HTTP (para redirección)
+      - "3004:3004"  # HTTPS
+      #- "3004:3004"  # HTTP (para redirección)
     environment:
-      - HTTPS_PORT=3443
-      - SSL_KEY_PATH=/app/ssl/server.key
-      - SSL_CERT_PATH=/app/ssl/server.crt
+      - HTTPS_PORT=3004
+      - SSL_KEY_PATH=/app/ssl/localhost+2-key.pem
+      - SSL_CERT_PATH=/app/ssl/localhost+2.pem
       - NODE_ENV=development
       - DB_HOST=db
       - DB_PORT=3306

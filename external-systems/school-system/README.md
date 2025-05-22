@@ -1,6 +1,6 @@
 para probar conexion a este componente de forma local, haz la petición:
 
-GET http://localhost:3004/api/school-system/info
+GET https://localhost:3004/api/school-system/info
 
 DOCKER:
 Para dockerizar el componente:
