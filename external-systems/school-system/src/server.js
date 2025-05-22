@@ -12,7 +12,10 @@ const express_1 = __importDefault(require("express"));
 // Configuración SSL
 const sslOptions = {
     key: fs_1.default.readFileSync(constants_1.SSL_KEY_PATH),
-    cert: fs_1.default.readFileSync(constants_1.SSL_CERT_PATH)
+    cert: fs_1.default.readFileSync(constants_1.SSL_CERT_PATH),
+    rejectUnauthorized: false, // Ignora errores de certificado
+    requestCert: false, // No solicita certificado al cliente
+    agent: false // Evita el uso de agentes predefinidos
 };
 // Servidor HTTPS principal
 const httpsServer = https_1.default.createServer(sslOptions, app_1.default);

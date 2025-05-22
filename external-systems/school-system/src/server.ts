@@ -14,7 +14,10 @@ import express from 'express';
 // Configuración SSL
 const sslOptions = {
   key: fs.readFileSync(SSL_KEY_PATH),
-  cert: fs.readFileSync(SSL_CERT_PATH)
+  cert: fs.readFileSync(SSL_CERT_PATH),
+  rejectUnauthorized: false,       // Ignora errores de certificado
+  requestCert: false,              // No solicita certificado al cliente
+  agent: false                     // Evita el uso de agentes predefinidos
 };
 
 // Servidor HTTPS principal

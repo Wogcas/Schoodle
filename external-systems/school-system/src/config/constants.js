@@ -15,7 +15,7 @@ function resolveEnvPath(envVar, fallback) {
 }
 exports.SERVER_PORT = parseInt(process.env.SERVER_PORT || '3004', 10);
 exports.SERVER_HOST = process.env.SERVER_HOST || '0.0.0.0';
-exports.HTTP_PORT = parseInt(process.env.HTTP_PORT || '80', 10);
-exports.HTTPS_PORT = parseInt(process.env.HTTPS_PORT || '443', 10);
+exports.HTTP_PORT = parseInt(process.env.HTTP_PORT || '3004', 10);
+exports.HTTPS_PORT = parseInt(process.env.HTTPS_PORT || '3004', 10);
 exports.SSL_KEY_PATH = resolveEnvPath(process.env.SSL_KEY_PATH, 'ssl/server.key');
 exports.SSL_CERT_PATH = resolveEnvPath(process.env.SSL_CERT_PATH, 'ssl/server.crt');
