@@ -5,6 +5,8 @@ import { join } from 'path';
 import { MoodleInfoService } from './services/moodle-info.service';
 import { ParentalApprovalService } from './services/parental-approval.service';
 import { AppService } from './app.service';
+import { readFileSync } from 'fs';
+import { ChannelCredentials } from '@grpc/grpc-js';
 
 @Module({
   imports: [
@@ -16,6 +18,14 @@ import { AppService } from './app.service';
           package: 'moodle',
           protoPath: join(__dirname, 'protos/moodle-info.proto'),
           url: 'localhost:50052',
+          credentials: ChannelCredentials.createSsl(
+            readFileSync(join(__dirname, '..', 'certs/ca.crt')), // CA para verificar servidor
+            readFileSync(join(__dirname, '..', 'certs/client.key')), // Clave cliente
+            readFileSync(join(__dirname, '..', 'certs/client.crt')),  // Certificado cliente
+            {
+              checkServerIdentity: () => undefined, // Ignora la verificación del hostname
+            }
+          )
         }
       },
       {
@@ -32,4 +42,4 @@ import { AppService } from './app.service';
   controllers: [AppController],
   providers: [MoodleInfoService, ParentalApprovalService, AppService],
 })
-export class AppModule {}
+export class AppModule { }
