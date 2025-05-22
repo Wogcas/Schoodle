@@ -17,7 +17,15 @@ const axios_1 = __importDefault(require("axios"));
 const config_1 = __importDefault(require("../config"));
 const registerAuthUser = (user) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        yield axios_1.default.post(`${config_1.default.AUTH_SERVICE_URL}/api/auth-service/users/register`, user);
+        const response = yield axios_1.default.post(`${config_1.default.AUTH_SERVICE_URL}/auth/sync/user`, user, {
+            headers: {
+                'x-api-key': config_1.default.JWT_SECRET,
+                'Content-Type': 'application/json'
+            }
+        });
+        if (response.status !== 201 && response.status !== 200) {
+            throw new Error(`Error en registro: ${response.statusText}`);
+        }
     }
     catch (error) {
         if ((error === null || error === void 0 ? void 0 : error.code) === 'ECONNREFUSED' || (error === null || error === void 0 ? void 0 : error.code) === 'ENOTFOUND') {

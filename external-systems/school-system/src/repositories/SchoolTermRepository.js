@@ -26,5 +26,13 @@ class SchoolTermRepository extends BaseRepository_1.default {
                 .first();
         });
     }
+    getSchoolTermById(termId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return (0, knex_1.default)('SchoolTerms')
+                .select('*')
+                .where('id', termId)
+                .first();
+        });
+    }
 }
 exports.default = SchoolTermRepository;
