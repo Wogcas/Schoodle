@@ -1,5 +1,6 @@
 import amqp, { Channel, ChannelModel, Connection } from 'amqplib';
 import rabbitConfig, { ExchangeConfig, QueueConfig } from "./rabbitmq.config";
+import * as fs from 'fs';
 
 class RabbitMQConnection {
     private connection: ChannelModel | null = null;
@@ -7,8 +8,23 @@ class RabbitMQConnection {
 
     async connect(): Promise<void> {
         try {
-            const { host, port, username, password, vhost } = rabbitConfig;
-            const connectionUrl = `amqp://${username}:${password}@${host}:${port}${vhost ? `/${vhost}` : ''}`;
+            const { host, port, username, password, vhost, ssl } = rabbitConfig;
+            const protocol = ssl?.enabled ? 'amqps' : 'amqp';
+
+            const connectionUrl = `${protocol}://${username}:${password}@${host}:${port}${vhost ? `/${vhost}` : ''}`;
+
+            const options = ssl?.enabled ? {
+                ca: ssl.caPath ? [fs.readFileSync(ssl.caPath)] : undefined,
+                cert: ssl.certPath ? fs.readFileSync(ssl.certPath) : undefined,
+                key: ssl.keyPath ? fs.readFileSync(ssl.keyPath) : undefined,
+                passphrase: ssl.passphrase,
+                rejectUnauthorized: ssl.rejectUnauthorized ?? false
+            } : undefined;
+
+            this.connection = options
+                ? await amqp.connect(connectionUrl, options)
+                : await amqp.connect(connectionUrl);
+
             this.connection = await amqp.connect(connectionUrl);
             this.channel = await this.connection.createChannel();
             console.log("Connected to RabbitMQ successfully.");
