@@ -19,3 +19,5 @@ parent-api-gateway/server.key
 services/student-progression/certs/server.crt
 services/student-progression/certs/server.csr
 services/student-progression/certs/server.key
+services/auth-service/server.crt
+services/auth-service/server.key
