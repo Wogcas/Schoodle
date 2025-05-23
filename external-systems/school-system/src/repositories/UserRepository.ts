@@ -1,5 +1,5 @@
 import knex from '../database/knex';
-import BaseRepository from './sex';
+import BaseRepository from './BaseRepository';
 import { UserWithRole } from '../models/User';
 
 export default class UserRepository extends BaseRepository {

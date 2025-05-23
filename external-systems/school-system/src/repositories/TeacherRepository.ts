@@ -1,5 +1,5 @@
 import knex from '../database/knex';
-import BaseRepository from './sex';
+import BaseRepository from './BaseRepository';
 
 interface CourseWithStudents {
     courseId: number;
