@@ -1,8 +1,7 @@
 import express from 'express';
-import https from 'https'; // <--- AÑADIR MÓDULO HTTPS
-import http from 'http'; // Lo mantenemos por si quieres un servidor HTTP también o por la estructura original
-import fs from 'fs';     // <--- AÑADIR MÓDULO FILE SYSTEM
-import path from 'path';   // <--- AÑADIR MÓDULO PATH
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { createMessageRouter } from './routes/messageRoutes';
@@ -14,12 +13,11 @@ import { NotificationPublisherService } from './rabbit/notificationsRabbit';
 dotenv.config();
 
 const app = express();
-const HTTP_PORT = process.env.PORT || 4000;
 const HTTPS_PORT = process.env.HTTPS_PORT || 4043;
 
 const sslOptions = {
-    key: fs.readFileSync(path.join(__dirname, '../ssl_certs/server.key')), 
-    cert: fs.readFileSync(path.join(__dirname, '../ssl_certs/server.crt')) 
+    key: fs.readFileSync(path.join(__dirname, '../certs/server.key')), 
+    cert: fs.readFileSync(path.join(__dirname, '../certs/server.crt')) 
 };
 
 
