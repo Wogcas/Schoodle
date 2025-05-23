@@ -1,0 +1,67 @@
+.message-container {
+  display: flex;
+  max-width: 80%;
+  margin: 5px 0;
+  width: fit-content;
+}
+
+.own-message {
+  align-self: flex-end;
+  justify-content: flex-end;
+}
+
+.other-message {
+  align-self: flex-start;
+}
+
+.message-bubble {
+  border-radius: 20px;
+  padding: 12px;
+  position: relative;
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.own-message .message-bubble {
+  background-color: #4a90e2;
+  color: white;
+  border-bottom-right-radius: 5px;
+}
+
+.other-message .message-bubble {
+  background-color: #ffeaa0;
+  color: #333333;
+  border-bottom-left-radius: 5px;
+}
+
+.message-text {
+  margin: 0;
+  font-size: 16px;
+  word-break: break-word;
+}
+
+.message-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.time-text {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-right: 4px;
+}
+
+.own-message .time-text {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.status-text {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.own-message .status-text {
+  color: rgba(255, 255, 255, 0.7);
+}
