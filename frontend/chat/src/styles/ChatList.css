@@ -1,0 +1,113 @@
+.chat-list-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #e6eeff;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.chat-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #e6eeff;
+  border-bottom: 1px solid #d0d0d0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.back-arrow {
+  font-size: 24px;
+  cursor: pointer;
+  margin-right: 10px;
+  color: #333;
+}
+
+.chat-list-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0;
+  color: #333333;
+}
+
+.new-chat-button {
+  background: none;
+  border: none;
+  color: #4a90e2;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
+
+.search-bar-wrapper {
+  padding: 0;
+  background-color: #e6eeff;
+}
+
+.conversations-list {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: #4a90e2;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.empty-chats-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+}
+
+.empty-text {
+  font-size: 18px;
+  color: #666666;
+  margin-bottom: 8px;
+}
+
+.empty-subtext {
+  font-size: 14px;
+  color: #999999;
+}
+
+.centered {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}

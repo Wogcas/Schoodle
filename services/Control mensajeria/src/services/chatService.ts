@@ -246,7 +246,7 @@ export default class ChatService {
         const conversationListItems: ConversationListItemDto[] = [];
         for (const conv of conversations) {
             const otherParticipantId = conv.participantA === userId ? conv.participantB : conv.participantA;
-            const otherParticipantName = `Usuario ${otherParticipantId.substring(0, 8)}`;
+            const otherParticipantName = `${otherParticipantId}`;
             const otherParticipantRole = (otherParticipantId.startsWith("teacher")) ? "Profesor/a" : "Padre/Madre";
             const lastMessage = await this.messageRepository.findOne({
                 where: { conversation: { id: conv.id } },

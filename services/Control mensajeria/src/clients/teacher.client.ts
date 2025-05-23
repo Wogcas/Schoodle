@@ -6,7 +6,7 @@ import https from 'https';
 
 const apiUrl = 'https://localhost:4043/api/messages';
 const userType = 'teacher';
-const userId = 'teacher-789';
+const userId = 'teacher-Gibran-123'; // ID del usuario que está enviando el mensaje
 const chatWith = 'parent-123';
 
 const rl = readline.createInterface({
