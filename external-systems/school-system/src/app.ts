@@ -1,5 +1,5 @@
-import express, { Request, Response } from 'express';
-import { SERVER_PORT, SERVER_HOST, HTTPS_PORT } from './config/constants';
+import express from 'express';
+import { SERVER_PORT, SERVER_HOST } from './config/constants';
 import systemRoutes from './routes/system';
 import studentRoutes from './routes/student';
 import teacherRoutes from './routes/teacher';
@@ -13,14 +13,8 @@ const app = express();
 
 app.use(express.json());
 
-// Ruta principal con tipos explícitos
-app.get('/', (req: Request, res: Response) => {
-  res.send(`
-    <h1>School System API</h1>
-    <p>Welcome to the School System API! call <a href="https://${SERVER_HOST}:${HTTPS_PORT}/api/school-system/info">
-      https://${SERVER_HOST}:${HTTPS_PORT}/api/school-system/info to get system information.
-    </a></p>
-  `);
+app.get('/', (req, res) => {
+    res.send(`Welcome to the School System API! call http://${SERVER_HOST}:${SERVER_PORT}/api/school-system/info to get system information.`);
 });
 
 app.use('/api/school-system', systemRoutes);
