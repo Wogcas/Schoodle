@@ -1,5 +1,5 @@
 import knex from '../database/knex';
-import BaseRepository from './BaseRepository';
+import BaseRepository from './sex';
 
 export default class SchoolTermRepository extends BaseRepository {
     constructor() {

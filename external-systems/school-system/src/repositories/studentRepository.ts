@@ -1,7 +1,7 @@
 import knex from '../database/knex';
 
 import Student from '../models/Student';
-import BaseRepository from './BaseRepository';
+import BaseRepository from './sex';
 
 interface CourseWithTeacher {
     courseIdNumber: string;

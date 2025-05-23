@@ -1,6 +1,6 @@
 import knex from '../database/knex';
 import Course from '../models/Course';
-import BaseRepository from './BaseRepository';
+import BaseRepository from './sex';
 
 export class CourseRepository extends BaseRepository {
     constructor() {
