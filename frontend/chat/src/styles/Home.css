@@ -1,0 +1,114 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  height: 100%;
+  position: relative;
+  background-color: #EAF3FF;
+}
+
+.notification-icon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: #e0e0e0;
+  border-radius: 50%;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+}
+
+.home-header {
+  margin-top: 60px;
+  margin-bottom: 40px;
+}
+
+.home-header h1 {
+  font-size: 36px;
+  font-weight: bold;
+  color: #000;
+}
+
+.home-header span {
+  font-size: 24px;
+  font-weight: normal;
+}
+
+.menu-options {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.menu-option {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.menu-option.chat,
+.menu-option.homework {
+  background-color: #a5c0e5;
+}
+
+.menu-option.progress,
+.menu-option.account {
+  background-color: #ffeaa0;
+}
+
+.option-icon {
+  width: 60px;
+  height: 60px;
+  background-color: white;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 15px;
+  overflow: hidden;
+}
+
+.option-text {
+  flex: 1;
+}
+
+.option-text h2 {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.option-text p {
+  font-size: 14px;
+  color: #333;
+}
+
+.option-arrow {
+  font-size: 24px;
+  font-weight: bold;
+}
+.option-icon img{
+  width: 60px;
+  height: 60px;
+  background-color: white;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
