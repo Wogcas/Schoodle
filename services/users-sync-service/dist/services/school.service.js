@@ -15,9 +15,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getUsersRegisteredSince = exports.getOldestRegisteredUser = void 0;
 const axios_1 = __importDefault(require("axios"));
 const config_1 = __importDefault(require("../config"));
+const https_1 = __importDefault(require("https"));
+// 1. Crear agente HTTPS que ignora certificados autofirmados (SOLO DESARROLLO)
+const insecureAgent = new https_1.default.Agent({
+    rejectUnauthorized: false
+});
+// 2. Configurar cliente API
+const apiClient = axios_1.default.create({
+    baseURL: config_1.default.AUTH_SERVICE_URL,
+    // @ts-ignore // Ignoramos el error de tipo intencionalmente
+    httpsAgent: insecureAgent,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
 const getOldestRegisteredUser = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield axios_1.default.get(`${config_1.default.SCHOOL_SYSTEM_URL}/api/school-system/users/first-registered`);
+        const response = yield apiClient.get(`${config_1.default.SCHOOL_SYSTEM_URL}/api/school-system/users/first-registered`);
         return response.data;
     }
     catch (error) {
@@ -30,7 +44,7 @@ const getOldestRegisteredUser = () => __awaiter(void 0, void 0, void 0, function
 exports.getOldestRegisteredUser = getOldestRegisteredUser;
 const getUsersRegisteredSince = (since) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield axios_1.default.get(`${config_1.default.SCHOOL_SYSTEM_URL}/api/school-system/users/registered-since`, {
+        const response = yield apiClient.get(`${config_1.default.SCHOOL_SYSTEM_URL}/api/school-system/users/registered-since`, {
             params: { since: since.toISOString() }
         });
         return response.data;

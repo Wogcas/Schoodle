@@ -13,14 +13,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerAuthUser = void 0;
-const axios_1 = __importDefault(require("axios"));
 const config_1 = __importDefault(require("../config"));
+const axios_1 = __importDefault(require("axios"));
+const https_1 = __importDefault(require("https"));
+// 1. Crear agente HTTPS que ignora certificados autofirmados (SOLO DESARROLLO)
+const insecureAgent = new https_1.default.Agent({
+    rejectUnauthorized: false
+});
+// 2. Configurar cliente API
+const apiClient = axios_1.default.create({
+    baseURL: config_1.default.AUTH_SERVICE_URL,
+    // @ts-ignore // Ignoramos el error de tipo intencionalmente
+    httpsAgent: insecureAgent,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
 const registerAuthUser = (user) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const response = yield axios_1.default.post(`${config_1.default.AUTH_SERVICE_URL}/auth/sync/user`, user, {
+        const response = yield apiClient.post(`${config_1.default.AUTH_SERVICE_URL}/auth/sync/user`, user, {
             headers: {
-                'x-api-key': config_1.default.JWT_SECRET,
-                'Content-Type': 'application/json'
+                'x-api-key': config_1.default.JWT_SECRET
             }
         });
         if (response.status !== 201 && response.status !== 200) {

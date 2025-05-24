@@ -24,11 +24,11 @@ import { AuthenticationService } from './services/authentication.service';
           protoPath: join(__dirname, 'protos/moodle-info.proto'),
           url: 'localhost:50052',
           credentials: ChannelCredentials.createSsl(
-            readFileSync(join(__dirname, '..', 'certs/ca.crt')), // CA para verificar servidor
-            readFileSync(join(__dirname, '..', 'certs/client.key')), // Clave cliente
-            readFileSync(join(__dirname, '..', 'certs/client.crt')),  // Certificado cliente
+            readFileSync(join(__dirname, '..', 'certs/ca.crt')), 
+            readFileSync(join(__dirname, '..', 'certs/client.key')), 
+            readFileSync(join(__dirname, '..', 'certs/client.crt')),  
             {
-              checkServerIdentity: () => undefined, // Ignora la verificación del hostname
+              checkServerIdentity: () => undefined,
             }
           )
         }
@@ -46,7 +46,7 @@ import { AuthenticationService } from './services/authentication.service';
     HttpModule.register({
       baseURL: enviroment.authservice,
       httpsAgent: new https.Agent({
-        rejectUnauthorized: false // Ignora errores de certificados autofirmados
+        rejectUnauthorized: false 
       })
     })
   ],

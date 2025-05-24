@@ -11,7 +11,7 @@ dotenv_1.default.config();
 const config = {
     SYNC_INTERVAL: process.env.SYNC_INTERVAL || '*/10 * * * *',
     SCHOOL_SYSTEM_URL: process.env.SCHOOL_SYSTEM_URL || 'http://localhost:3004',
-    AUTH_SERVICE_URL: process.env.AUTH_SERVICE_URL || 'http://localhost:3005',
+    AUTH_SERVICE_URL: process.env.AUTH_SERVICE_URL || 'https://localhost:3005',
     STATE_FILE_PATH: process.env.STATE_FILE_PATH || './sync-state.json',
     JWT_SECRET: process.env.JWT_SECRET || ''
 };

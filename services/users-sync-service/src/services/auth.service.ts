@@ -1,5 +1,6 @@
-import axios from 'axios';
 import config from '../config';
+import axios from 'axios';
+import https from 'https';
 
 interface AuthUser {
   idNumber: string;
@@ -10,15 +11,29 @@ interface AuthUser {
   role: string;
 }
 
+// 1. Crear agente HTTPS que ignora certificados autofirmados (SOLO DESARROLLO)
+const insecureAgent = new https.Agent({ 
+  rejectUnauthorized: false 
+});
+
+// 2. Configurar cliente API
+const apiClient = axios.create({
+  baseURL: config.AUTH_SERVICE_URL,
+  // @ts-ignore // Ignoramos el error de tipo intencionalmente
+  httpsAgent: insecureAgent,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
 export const registerAuthUser = async (user: AuthUser): Promise<void> => {
   try {
-    const response = await axios.post(
+    const response = await apiClient.post(
       `${config.AUTH_SERVICE_URL}/auth/sync/user`,
       user,
       {
         headers: {
-          'x-api-key': config.JWT_SECRET,
-          'Content-Type': 'application/json'
+          'x-api-key': config.JWT_SECRET
         }
       }
     );

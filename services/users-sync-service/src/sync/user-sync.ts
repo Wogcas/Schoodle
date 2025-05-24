@@ -2,6 +2,7 @@ import { SchoolUser } from '../services/school.service';
 import { registerAuthUser } from '../services/auth.service';
 import config, { getLastSyncDate, updateLastSyncDate } from '../config';
 import { getOldestRegisteredUser, getUsersRegisteredSince } from '../services/school.service';
+import { log } from 'console';
 
 const generatePassword = (lastName: string): string => {
   const prefix = lastName.substring(0, 3);
